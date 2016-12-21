@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
 from datasets import ReadData
 
 class FeatureEngin(ReadData):
@@ -32,11 +31,34 @@ class FeatureEngin(ReadData):
         self.dataframe = self.dataframe.drop(colname_remove,
                                              axis = 1)
 
+    def _convert_column(self, column):
+        """
+        Convert string to int in one column.
+        :param column: One column in dataframe.
+        :return: Converted column.
+        """
+        column_values = column[~column.isnull()]
+        is_string = column_values.apply(lambda x: isinstance(x, str)).any()
+        if is_string:
+            unique_values = list(set(column_values))
+            int_length = len(unique_values)
+            for i in range(int_length):
+                value = unique_values[i]
+                column[column == value] = i+1
+
+        return column
+
     def _convert(self):
         """
         Convert string to int in each column.
         :return:
         """
         self._remove_missing()
-        colname = self.dataframe.columns
+        dataframe = self.dataframe.copy()
+        colnames = self.dataframe.columns
         value_count = [] * self.dataframe.shape[0]
+        for name in colnames:
+            column = dataframe[name]
+            dataframe[name] = self._convert_column(column=column)
+
+        self.dataframe = dataframe
