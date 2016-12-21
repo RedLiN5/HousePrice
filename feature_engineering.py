@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import statistics
 from datasets import ReadData
 
 class FeatureEngin(ReadData):
@@ -20,7 +21,7 @@ class FeatureEngin(ReadData):
         missing_count = dataframe.isnull().sum()
         return missing_count
 
-    def _remove_missing(self):
+    def _remove_missing_(self):
         """
         Remove columns with more than 40% missing values.
         :return:
@@ -39,26 +40,45 @@ class FeatureEngin(ReadData):
         """
         column_values = column[~column.isnull()]
         is_string = column_values.apply(lambda x: isinstance(x, str)).any()
+
         if is_string:
             unique_values = list(set(column_values))
             int_length = len(unique_values)
+
             for i in range(int_length):
                 value = unique_values[i]
-                column[column == value] = i+1
+                column.loc[column == value] = i+1
 
         return column
 
-    def _convert(self):
+    def _convert_(self):
         """
         Convert string to int in each column.
         :return:
         """
-        self._remove_missing()
+        self._remove_missing_()
         dataframe = self.dataframe.copy()
         colnames = self.dataframe.columns
         value_count = [] * self.dataframe.shape[0]
+
         for name in colnames:
             column = dataframe[name]
             dataframe[name] = self._convert_column(column=column)
 
         self.dataframe = dataframe
+
+    def _interpolate_(self):
+        self._convert_()
+        dataframe = self.dataframe.copy()
+        missing_count = dataframe.isnull().sum()
+        col_missing = missing_count[missing_count > 0]
+        colnames_missing = col_missing.index.tolist()
+
+        for colname in colnames_missing:
+            column = dataframe[colname]
+            index_missing = column.isnull()
+            mode = statistics.mode(column[~index_missing])
+            column = column.fillna(mode)
+            dataframe[colname] = column
+
+        return dataframe
