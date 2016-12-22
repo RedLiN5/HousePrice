@@ -3,11 +3,11 @@
 import statistics
 from datasets import ReadData
 
-class FeatureEngin(ReadData):
+class FeaturePreprocess(ReadData):
 
     def __init__(self):
-        super(FeatureEngin, self).__init__()
-        self.run()
+        super(FeaturePreprocess, self).__init__()
+        self.load()
         self.rownum = self.dataframe.shape[0]
         self.colnum = self.dataframe.shape[1]
 
@@ -17,7 +17,7 @@ class FeatureEngin(ReadData):
         :return:
         Series
         """
-        dataframe = self.dataframe
+        dataframe = self.dataframe.copy()
         missing_count = dataframe.isnull().sum()
         return missing_count
 
@@ -68,6 +68,10 @@ class FeatureEngin(ReadData):
         self.dataframe = dataframe
 
     def _interpolate_(self):
+        """
+        Interpolate missing values with mode.
+        :return:
+        """
         self._convert_()
         dataframe = self.dataframe.copy()
         missing_count = dataframe.isnull().sum()
@@ -81,4 +85,7 @@ class FeatureEngin(ReadData):
             column = column.fillna(mode)
             dataframe[colname] = column
 
-        return dataframe
+        self.dataframe = dataframe
+
+    def run_preprocessor(self):
+        self._interpolate_()
