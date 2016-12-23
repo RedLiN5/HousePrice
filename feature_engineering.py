@@ -6,7 +6,6 @@ from feature_preprocessing import FeaturePreprocess
 import minepy
 from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 class FeatureEngin(FeaturePreprocess):
 
@@ -34,13 +33,3 @@ class FeatureEngin(FeaturePreprocess):
 
         corr_scores = corr_scores.sort_values(ascending=False)
         return corr_scores
-
-    def _corr_plot_(self):
-        corr_scores = self._corr_()
-        x_names = np.array(corr_scores.index)
-        scores = corr_scores.values
-        x_range = list(range(1, len(x_names) + 1))
-        plt.plot(x_range, scores, 'c.-')
-        plt.xticks(x_range, x_names,
-                   rotation = -45)
-        plt.savefig('myplot.png')
