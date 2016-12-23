@@ -23,5 +23,6 @@ class Plots(FeatureEngin):
                            rotation=80)
         ax.set_xticks(np.arange(len(x_names)))
         ax.set_ylim([-0.2, 1])
+        ax.title.set_text('Feature Importance')
         fig.savefig('myplot.png',
                     bbox_inches='tight')
