@@ -46,3 +46,7 @@ class FeatureEngin(FeaturePreprocess):
     def _collinearity_handle_(self):
         # TODO(Leslie) Handle collinearity in features
         pass
+
+    def start(self):
+        feature_names = self._feature_select_()
+        return feature_names
