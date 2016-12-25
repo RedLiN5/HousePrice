@@ -16,7 +16,7 @@ class FeatureEngin(FeaturePreprocess):
         self.X = self.dataframe.drop('SalePrice',
                                      axis = 1)
 
-    def _corr_(self):
+    def _feature_impact_(self):
         X, y = self.X, self.y
         colnames = X.columns
         m = minepy.MINE()
@@ -33,3 +33,4 @@ class FeatureEngin(FeaturePreprocess):
 
         corr_scores = corr_scores.sort_values(ascending=False)
         return corr_scores
+
