@@ -44,7 +44,7 @@ class FeatureEngin(FeaturePreprocess):
         feature_names = corr_scores.index.tolist()[:i]
         return feature_names
 
-    def _vif_calculator_(self, X):
+    def _vif_calculator_(self):
         """
         Parameters:
         -----------
@@ -56,13 +56,19 @@ class FeatureEngin(FeaturePreprocess):
         vif : pandas.DataFrame
             vif values between two predictors.
         """
+        feature_names = self._feature_select_()
+        X = self.X.copy()
+        X = X[feature_names]
         colnames = X.columns
         values = X.values.T
         length = X.shape[1]
         rs = np.corrcoef(values) ** 2
+        # AttributeError: 'float' object has no attribute 'sqrt'
         for i in range(length):
             rs[i, i] = 0
         vif_values = 1 / (1 - rs)
+        for j in range(length):
+            vif_values[j, j:] = 0
         self.vif = pd.DataFrame(data=vif_values,
                                 columns=colnames,
                                 index=colnames)
@@ -75,8 +81,11 @@ class FeatureEngin(FeaturePreprocess):
                         [10, inf): disaster
         :return:
         """
-
+        vif = self._vif_calculator_()
+        keep = ~(vif >= 5).any().values
+        colnames = self.X.copy()
+        colnames_keep = np.array(colnames[keep])
+        self.X = self.X[colnames_keep]
 
     def start(self):
-        feature_names = self._feature_select_()
-        return feature_names
+        self._remove_collinearity_()
