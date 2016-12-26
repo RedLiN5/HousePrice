@@ -14,6 +14,7 @@ class FeatureEngin(FeaturePreprocess):
         self.y = self.dataframe['SalePrice']
         self.X = self.dataframe.drop('SalePrice',
                                      axis = 1)
+        self.vif = None
 
     def _feature_impact_(self):
         X, y = self.X, self.y
@@ -43,9 +44,38 @@ class FeatureEngin(FeaturePreprocess):
         feature_names = corr_scores.index.tolist()[:i]
         return feature_names
 
-    def _collinearity_handle_(self):
-        # TODO(Leslie) Handle collinearity in features
-        pass
+    def _vif_calculator_(self, X):
+        """
+        Parameters:
+        -----------
+        X : pands.DataFrame
+            DataFrame containing multiple variables and observations for predictors.
+
+        Returns:
+        --------
+        vif : pandas.DataFrame
+            vif values between two predictors.
+        """
+        colnames = X.columns
+        values = X.values.T
+        length = X.shape[1]
+        rs = np.corrcoef(values) ** 2
+        for i in range(length):
+            rs[i, i] = 0
+        vif_values = 1 / (1 - rs)
+        self.vif = pd.DataFrame(data=vif_values,
+                                columns=colnames,
+                                index=colnames)
+        return self.vif
+
+    def _remove_collinearity_(self):
+        """
+        If VIF score in [1, 5): acceptable
+                        [5, 10): problematic
+                        [10, inf): disaster
+        :return:
+        """
+        
 
     def start(self):
         feature_names = self._feature_select_()
