@@ -75,7 +75,7 @@ class FeatureEngin(FeaturePreprocess):
                         [10, inf): disaster
         :return:
         """
-        
+
 
     def start(self):
         feature_names = self._feature_select_()
