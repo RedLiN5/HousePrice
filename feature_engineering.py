@@ -11,8 +11,9 @@ class FeatureEngin(FeaturePreprocess):
     def __init__(self):
         super(FeatureEngin, self).__init__()
         self.run_preprocessor()
-        self.y = self.dataframe['SalePrice']
-        self.X = self.dataframe.drop('SalePrice',
+        dataframe = self.dataframe.copy()
+        self.y = dataframe['SalePrice']
+        self.X = dataframe.drop('SalePrice',
                                      axis = 1)
         self.vif = None
 
@@ -60,10 +61,9 @@ class FeatureEngin(FeaturePreprocess):
         X = self.X.copy()
         X = X[feature_names]
         colnames = X.columns
-        values = X.values.T
+        values = X.values.T.tolist()
         length = X.shape[1]
         rs = np.corrcoef(values) ** 2
-        # AttributeError: 'float' object has no attribute 'sqrt'
         for i in range(length):
             rs[i, i] = 0
         vif_values = 1 / (1 - rs)
@@ -88,4 +88,4 @@ class FeatureEngin(FeaturePreprocess):
         self.X = self.X[colnames_keep]
 
     def start(self):
-        self._remove_collinearity_()
+        self._vif_calculator_()
