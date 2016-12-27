@@ -58,3 +58,17 @@ class Plots(FeatureEngin):
         ax.title.set_text('Accumulative Feature Impact')
         fig.savefig('accum_feature_impact.png',
                     bbox_inches='tight')
+
+    def house_price_histograme(self):
+        price = self.y.copy().values
+        plt.figure(figsize=(16, 9))
+        plt.hist(x = price,
+                 bins = 80,
+                 facecolor = 'c',
+                 alpha = 1)
+        plt.xlabel('House Price')
+        plt.ylabel('Count')
+        plt.grid(True)
+        plt.ylim([0, 140])
+        plt.title('House Price Distribution')
+        plt.savefig('price_distribution.png')
