@@ -60,6 +60,7 @@ class FeatureEngin(FeaturePreprocess):
         feature_names = self._feature_select_()
         X = self.X.copy()
         X = X[feature_names]
+        self.X = X
         colnames = X.columns
         values = X.values.T.tolist()
         length = X.shape[1]
@@ -83,9 +84,9 @@ class FeatureEngin(FeaturePreprocess):
         """
         vif = self._vif_calculator_()
         keep = ~(vif >= 5).any().values
-        colnames = self.X.copy()
-        colnames_keep = np.array(colnames[keep])
+        colnames = np.array(self.X.copy().columns)
+        colnames_keep = colnames[keep]
         self.X = self.X[colnames_keep]
 
     def start(self):
-        self._vif_calculator_()
+        self._remove_collinearity_()
