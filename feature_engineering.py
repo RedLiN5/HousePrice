@@ -8,8 +8,9 @@ from scipy.stats import pearsonr
 
 class FeatureEngin(FeaturePreprocess):
 
-    def __init__(self):
-        super(FeatureEngin, self).__init__()
+    def __init__(self, filename, istest=False):
+        super(FeatureEngin, self).__init__(filename=filename,
+                                           istest=istest)
         self.run_preprocessor()
         dataframe = self.dataframe.copy()
         self.y = dataframe['SalePrice']
@@ -86,6 +87,7 @@ class FeatureEngin(FeaturePreprocess):
         keep = ~(vif >= 5).any().values
         colnames = np.array(self.X.copy().columns)
         colnames_keep = colnames[keep]
+        self.colnames_keep = colnames_keep
         self.X = self.X[colnames_keep]
 
     def start(self):
