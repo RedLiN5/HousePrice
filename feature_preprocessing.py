@@ -5,11 +5,12 @@ from datasets import ReadData
 
 class FeaturePreprocess(ReadData):
 
-    def __init__(self):
-        super(FeaturePreprocess, self).__init__()
+    def __init__(self, filename, istest=False):
+        super(FeaturePreprocess, self).__init__(filname=filename)
         self.load()
         self.rownum = self.dataframe.shape[0]
         self.colnum = self.dataframe.shape[1]
+        self.istest = istest
 
     def _missing_value(self):
         """
@@ -27,15 +28,17 @@ class FeaturePreprocess(ReadData):
         :return:
         """
         missing_count = self._missing_value()
-        col_remove = missing_count[missing_count>self.colnum * .4]
+        col_remove = missing_count[missing_count>self.rownum * .4]
         colname_remove = col_remove.index.tolist()
+        self.colname_remove_prep = col_remove
         self.dataframe = self.dataframe.drop(colname_remove,
                                              axis = 1)
 
     def _convert_column(self, column):
         """
         Convert string to int in one column.
-        :param column: One column in dataframe.
+        :param column: pandas.Series
+                       One column in dataframe.
         :return: Converted column.
         """
         column_values = column[~column.isnull()]
@@ -56,7 +59,8 @@ class FeaturePreprocess(ReadData):
         Convert string to int in each column.
         :return:
         """
-        self._remove_missing_()
+        if ~self.istest:
+            self._remove_missing_()
         dataframe = self.dataframe.copy()
         colnames = self.dataframe.columns
         value_count = [] * self.dataframe.shape[0]
