@@ -7,37 +7,38 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 from sklearn.metrics import r2_score
+from collections import Counter
+
 
 class Regressions(FeatureEngin):
 
     def __init__(self, filename):
         super(Regressions, self).__init__(filename=filename)
         self.feature_names = FeatureEngin.start(self)
+        self.predictions = []
+        self.ensemble_size = 10
+        self.ensemble_models = []
+        self._split_data()
 
-    def _split_data_(self):
+    def _split_data(self):
         X, y = self.X.copy(), self.y.copy()
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                            test_size=0.3,
-                                                            random_state=0)
-        return X_train, X_test, y_train, y_test
+        self.X_train, self.X_test, self.y_train,\
+        self.y_test = train_test_split(X, y,
+                                       test_size=0.3,
+                                       random_state=0)
 
-    def ridge_reg(self):
-        X_train, X_test, y_train, y_test  = self._split_data_()
-        alphas = np.linspace(.1, 3, 20)
-        scores = [None] * len(alphas)
-        i = 0
-        for alpha in alphas:
-            clf = Ridge(alpha=alpha,
-                        fit_intercept=True,
-                        normalize=True,
-                        solver='auto',
-                        random_state=1,
-                        tol=.001)
-            clf.fit(X_train, y_train)
-            scores[i] = clf.score(X_test, y_test)
-            i = i + 1
-        print(alphas)
-        print(scores)
+    def _ridge_reg(self):
+        clf = Ridge(alpha=0.7,
+                    fit_intercept=True,
+                    normalize=True,
+                    solver='auto',
+                    random_state=1,
+                    tol=.001)
+        self.ensemble_models.append(clf)
+        clf.fit(self.X_train.copy(),
+                self.y_train.copy())
+        pred = clf.predict(self.X_test.copy())
+        self.predictions.append(pred)
 
     def fit_ridge(self, X_test):
         clf = Ridge(alpha=0.7,
@@ -55,29 +56,17 @@ class Regressions(FeatureEngin):
         pred_df.to_csv('results_ridge.csv',
                        sep=',')
 
-    def xgb_reg(self):
-        X_train, X_test, y_train, y_test = self._split_data_()
-        gammas = [0.1, 0.5, 1, 2, 5, 8, 10]
-        scores = [None] * len(gammas)
-        i = 0
-        for gamma in gammas:
-            clf = XGBRegressor(max_depth=7,
-                               learning_rate=0.11,
-                               n_estimators=300,
-                               gamma=1,
-                               seed=1)
-            clf.fit(X_train.values,
-                    y_train.values.flatten())
-            scores[i] = clf.score(X_test.values,
-                                  y_test.values.flatten())
-            i = i + 1
-
-        print(gammas)
-        print(scores)
-        depth = 7
-        learning_rate = 0.11
-        n_estimator = 300
-        gamma = 1
+    def _xgb_reg(self):
+        clf = XGBRegressor(max_depth=7,
+                           learning_rate=0.11,
+                           n_estimators=300,
+                           gamma=1,
+                           seed=1)
+        self.ensemble_models.append(clf)
+        clf.fit(self.X_train.copy().values,
+                self.y_train.copy().values.flatten())
+        pred = clf.predict(self.X_test.copy())
+        self.predictions.append(pred)
 
     def fit_xgb(self, X_test):
         clf = XGBRegressor(max_depth=7,
@@ -94,6 +83,74 @@ class Regressions(FeatureEngin):
         pred_df.to_csv('results_xgb.csv',
                        sep=',')
 
+    def _generate_weight_indices(self):
+        self._ridge_reg()
+        self._xgb_reg()
+        predictions = self.predictions.copy()
+        ensemble = []
+        indices = []
+
+        if len(predictions) > 1:
+            for i in range(self.ensemble_size):
+                scores = np.zeros(len(predictions))
+                s = len(ensemble)
+                if s == 0:
+                    y_weighted_ensemble_pred = np.zeros(predictions[0].shape)
+                else:
+                    y_ensemble_pred = np.mean(np.array(ensemble), axis=0)
+                    y_weighted_ensemble_pred = (s / float(s + 1)) * \
+                                               y_ensemble_pred
+                for j, pred in enumerate(predictions):
+                    y_comb_ensemble_pred = y_weighted_ensemble_pred +\
+                                           (1 / s + 1) * pred
+                    scores[j] = r2_score(self.y_test.copy().values.flatten(),
+                                         y_comb_ensemble_pred)
+                best = np.nanargmax(scores)
+                ensemble.append(predictions[best])
+                indices.append(best)
+        elif len(predictions) == 1:
+            pass
+        else:
+            raise ValueError('No prediction given by models.')
+        return indices
+
+    def _calculate_weights(self):
+        indices = self._generate_weight_indices()
+        weights = np.zeros(len(self.predictions),
+                           dtype=float)
+        ensemble_members = Counter(indices).most_common()
+        if len(indices) > 1:
+            for member in ensemble_members:
+                weight = member[1] / self.ensemble_size
+                weights[member[0]] = weight
+            if np.sum(weights) < 1:
+                weights = weights / np.sum(weights)
+        else:
+            pass
+        return weights
+
+    def fit_ensemble(self, X_test):
+        weights = self._calculate_weights()
+        ensemble_results = []
+        if len(weights) > 1:
+            for i, clf in enumerate(self.ensemble_models.copy()):
+                clf.fit(self.X.copy().values,
+                        self.y.copy().values.flatten())
+                pred = clf.predict(X_test.values)
+                ensemble_results[i] = pred
+            ensemble_results = np.array(ensemble_results)
+            result = np.dot(ensemble_results.T,
+                            weights)
+        else:
+            clf = self.ensemble_models.copy()[0]
+            clf.fit(self.X.copy().values,
+                    self.y.copy().values.flatten())
+            result = clf.predict(X_test.values)
+        ids = X_test.index
+        pred_df = pd.DataFrame({'SalePrice': result},
+                               index=ids)
+        pred_df.to_csv('results_ensemble.csv',
+                       sep=',')
 
     def run(self):
         # TODO(Leslie) add last function to run
