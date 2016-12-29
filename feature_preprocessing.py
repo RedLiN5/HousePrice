@@ -5,12 +5,12 @@ from datasets import ReadData
 
 class FeaturePreprocess(ReadData):
 
-    def __init__(self, filename, istest=False):
+    def __init__(self, filename, ispred=False):
         super(FeaturePreprocess, self).__init__(filname=filename)
         self.load()
         self.rownum = self.dataframe.shape[0]
         self.colnum = self.dataframe.shape[1]
-        self.istest = istest
+        self.ispred = ispred
 
     def _missing_value(self):
         """
@@ -59,7 +59,7 @@ class FeaturePreprocess(ReadData):
         Convert string to int in each column.
         :return:
         """
-        if ~self.istest:
+        if ~self.ispred:
             self._remove_missing_()
         dataframe = self.dataframe.copy()
         colnames = self.dataframe.columns
