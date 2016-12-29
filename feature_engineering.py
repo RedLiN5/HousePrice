@@ -8,9 +8,9 @@ from scipy.stats import pearsonr
 
 class FeatureEngin(FeaturePreprocess):
 
-    def __init__(self, filename, istest=False):
+    def __init__(self, filename, ispred=False):
         super(FeatureEngin, self).__init__(filename=filename,
-                                           istest=istest)
+                                           ispred=ispred)
         self.run_preprocessor()
         dataframe = self.dataframe.copy()
         self.y = dataframe['SalePrice']
