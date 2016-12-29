@@ -12,13 +12,14 @@ from collections import Counter
 
 class Regressions(FeatureEngin):
 
-    def __init__(self, filename):
+    def __init__(self, filename, ispred=False):
         super(Regressions, self).__init__(filename=filename)
         self.feature_names = FeatureEngin.start(self)
         self.predictions = []
         self.ensemble_size = 10
         self.ensemble_models = []
-        self._split_data()
+        if ~ispred:
+            self._split_data()
 
     def _split_data(self):
         X, y = self.X.copy(), self.y.copy()
