@@ -2,6 +2,7 @@
 
 from feature_engineering import FeatureEngin
 from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 import numpy as np
@@ -27,7 +28,7 @@ class Regressions(FeatureEngin):
                                        test_size=0.3,
                                        random_state=0)
 
-    def _ridge_reg(self):
+    def _ridge_reg(self): # 0.736
         clf = Ridge(alpha=0.7,
                     fit_intercept=True,
                     normalize=True,
@@ -56,7 +57,18 @@ class Regressions(FeatureEngin):
         pred_df.to_csv('results_ridge.csv',
                        sep=',')
 
-    def _xgb_reg(self):
+    def _lasso_reg(self): # 0.730
+        clf = Lasso(alpha=120,
+                    fit_intercept=True,
+                    normalize=True,
+                    random_state=1)
+        self.ensemble_models.append(clf)
+        clf.fit(self.X_train.copy(),
+                self.y_train.copy())
+        pred = clf.predict(self.X_test.copy())
+        self.predictions.append(pred)
+
+    def _xgb_reg(self): # 0.898
         clf = XGBRegressor(max_depth=7,
                            learning_rate=0.11,
                            n_estimators=300,
