@@ -151,7 +151,7 @@ class Regressions(FeatureEngin):
 
         ensemble_results = np.array(ensemble_results)
         result = np.dot(ensemble_results.T,
-                            weights)
+                        weights)
         ids = X_test.index
         pred_df = pd.DataFrame({'SalePrice': result},
                                index=ids)
