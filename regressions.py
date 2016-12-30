@@ -68,7 +68,21 @@ class Regressions(FeatureEngin):
         pred = clf.predict(self.X_test.copy())
         self.predictions.append(pred)
 
-    def _xgb_reg(self): # 0.898
+    def fit_lasso(self, X_test):
+        clf = Lasso(alpha=120,
+                    fit_intercept=True,
+                    normalize=True,
+                    random_state=1)
+        clf.fit(self.X.copy(),
+                self.y.copy())
+        preds = clf.predict(X=X_test)
+        ids = X_test.index
+        pred_df = pd.DataFrame({'SalePrice':preds},
+                               index=ids)
+        pred_df.to_csv('results_lasso.csv',
+                       sep=',')
+
+    def _xgb1_reg(self): # 0.898
         clf = XGBRegressor(max_depth=7,
                            learning_rate=0.11,
                            n_estimators=300,
@@ -79,6 +93,41 @@ class Regressions(FeatureEngin):
                 self.y_train.copy().values.flatten())
         pred = clf.predict(self.X_test.copy().values)
         self.predictions.append(pred)
+
+    def _xgb2_reg(self): # 0.898
+        clf = XGBRegressor(max_depth=6,
+                           learning_rate=0.09,
+                           n_estimators=300,
+                           gamma=1,
+                           seed=1)
+        self.ensemble_models.append(clf)
+        clf.fit(self.X_train.copy().values,
+                self.y_train.copy().values.flatten())
+        pred = clf.predict(self.X_test.copy().values)
+        self.predictions.append(pred)
+
+    def _xgb_test_reg(self): # 0.898
+        depths = [5,6,7,8,9]
+        rates = np.linspace(0.09, 0.15, 7)
+        ns = [280, 290, 300, 310, 320]
+        scores = []
+        for depth in depths:
+            for rate in rates:
+                for n in ns:
+                    clf = XGBRegressor(max_depth=depth,
+                                       learning_rate=rate,
+                                       n_estimators=n,
+                                       gamma=1,
+                                       seed=1)
+                    self.ensemble_models.append(clf)
+                    clf.fit(self.X_train.copy().values,
+                            self.y_train.copy().values.flatten())
+                    score = clf.score(self.X_test.copy().values,self.y_test.copy().values.flatten())
+                    scores.append(score)
+                    print('depth:', depth, 'rate:', rate, 'n:', n, 'score:', score, '\n')
+        print('best score:', sorted(scores, reverse=True)[:3])
+        # pred = clf.predict(self.X_test.copy().values)
+        # self.predictions.append(pred)
 
     def fit_xgb(self, X_test):
         clf = XGBRegressor(max_depth=7,
@@ -97,7 +146,9 @@ class Regressions(FeatureEngin):
 
     def _generate_weight_indices(self):
         self._ridge_reg()
-        self._xgb_reg()
+        self._xgb1_reg()
+        self._xgb2_reg()
+        self._lasso_reg()
         predictions = self.predictions.copy()
         ensemble = []
         indices = []
