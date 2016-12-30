@@ -18,8 +18,7 @@ class Regressions(FeatureEngin):
         self.predictions = []
         self.ensemble_size = 10
         self.ensemble_models = []
-        if ~ispred:
-            self._split_data()
+        self._split_data()
 
     def _split_data(self):
         X, y = self.X.copy(), self.y.copy()
@@ -66,7 +65,7 @@ class Regressions(FeatureEngin):
         self.ensemble_models.append(clf)
         clf.fit(self.X_train.copy().values,
                 self.y_train.copy().values.flatten())
-        pred = clf.predict(self.X_test.copy())
+        pred = clf.predict(self.X_test.copy().values)
         self.predictions.append(pred)
 
     def fit_xgb(self, X_test):
@@ -103,7 +102,7 @@ class Regressions(FeatureEngin):
                                                y_ensemble_pred
                 for j, pred in enumerate(predictions):
                     y_comb_ensemble_pred = y_weighted_ensemble_pred +\
-                                           (1 / s + 1) * pred
+                                           1 / (s + 1) * pred
                     scores[j] = r2_score(self.y_test.copy().values.flatten(),
                                          y_comb_ensemble_pred)
                 best = np.nanargmax(scores)
@@ -130,23 +129,29 @@ class Regressions(FeatureEngin):
             pass
         return weights
 
-    def fit_ensemble(self, X_test):
-        weights = self._calculate_weights()
-        ensemble_results = []
-        if len(weights) > 1:
-            for i, clf in enumerate(self.ensemble_models.copy()):
-                clf.fit(self.X.copy().values,
-                        self.y.copy().values.flatten())
-                pred = clf.predict(X_test.values)
-                ensemble_results[i] = pred
-            ensemble_results = np.array(ensemble_results)
-            result = np.dot(ensemble_results.T,
-                            weights)
-        else:
-            clf = self.ensemble_models.copy()[0]
+    def fit_ensemble(self):
+        self.weights = self._calculate_weights()
+        for i, clf in enumerate(self.ensemble_models):
             clf.fit(self.X.copy().values,
                     self.y.copy().values.flatten())
-            result = clf.predict(X_test.values)
+
+    def predict_ensemble(self, X_test):
+        """
+        Predict results with ensemble models.
+        :param
+        X_test: pandas.DataFrame
+
+        :return:
+        """
+        weights = self.weights
+        ensemble_results = []
+        for i, clf in enumerate(self.ensemble_models):
+            pred = clf.predict(X_test.values)
+            ensemble_results.append(pred)
+
+        ensemble_results = np.array(ensemble_results)
+        result = np.dot(ensemble_results.T,
+                            weights)
         ids = X_test.index
         pred_df = pd.DataFrame({'SalePrice': result},
                                index=ids)
