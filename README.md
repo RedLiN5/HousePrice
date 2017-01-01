@@ -18,6 +18,10 @@ No! It's more ambiguous!
 
 
 
+### Features with severe collinearity
+
+
+
 ### Feature Engineering with domain knowledge
 
 #### Interpolation
@@ -26,7 +30,7 @@ No! It's more ambiguous!
 
 
 
-#### Encoding
+#### Encoding (Do more importance features first)
 
 **LotShap**: Reg ——— 4; IR1 ——— 3; IR2 ——— 2; IR3 ——— 1
 
@@ -37,10 +41,6 @@ No! It's more ambiguous!
 **BldgType**: 1Fam ——— 5; 2FmCon ——— 4; Duplx ——— 3; TwnhsE ——— 2; TwnhsI ——— 1
 
 **HouseStyle**: SLvl —— 6; SFoyer —— 5; 2.5Fin —— 4; 2.5Unf —— 3.5; 2Story —— 3; 1.5Fin —— 2; 1.5Unf —— 1.5; 1Story —— 1
-
-
-
-
 
 
 
