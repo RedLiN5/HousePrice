@@ -20,6 +20,7 @@ class FeaturePreprocess(ReadData):
         """
         dataframe = self.dataframe.copy()
         missing_count = dataframe.isnull().sum()
+        # print(missing_count)
         return missing_count
 
     def _remove_missing_(self):
@@ -59,8 +60,7 @@ class FeaturePreprocess(ReadData):
         Convert string to int in each column.
         :return:
         """
-        if ~self.ispred:
-            self._remove_missing_()
+        self._domain_knwl_encod()
         dataframe = self.dataframe.copy()
         colnames = self.dataframe.columns
         value_count = [] * self.dataframe.shape[0]
@@ -90,6 +90,23 @@ class FeaturePreprocess(ReadData):
             dataframe[colname] = column
 
         self.dataframe = dataframe
+
+    def _domain_knwl_encod(self):
+        if ~self.ispred:
+            self._remove_missing_()
+        df = self.dataframe
+        df['LotShape'] = df['LotShape'].map({'Reg': 4, 'IR1': 3,
+                                         'IR2': 2, 'IR3': 1})
+        # X['Utilities'] = X['Utilities'].map({'AllPub': 4, 'NoSewr': 3,
+        #                                      'NoSeWa': 2, 'ELO': 1})
+        df['LandSlope'] = df['LandSlope'].map({'Gtl': 3, 'Mod':2, 'Sev': 1})
+        df['BldgType'] = df['BldgType'].map({'1Fam':5, '2FmCon':4, 'Duplx':3,
+                                           'TwnhsE': 2, 'TwnhsI':1})
+        df['HouseStyle'] = df['HouseStyle'].map({'SLvl':6, 'SFoyer':5,
+                                               '2.5Fin':4, '2.5Unf': 3.5,
+                                               '2Story':3, '1.5Fin': 2,
+                                               '1.5Unf': 1.5, '1Story': 1})
+        self.dataframe = df
 
     def run_preprocessor(self):
         self._interpolate_()
