@@ -93,20 +93,5 @@ class FeatureEngin(FeaturePreprocess):
     def _domain_knwl_intrplt(self):
         pass
 
-    def _domain_knwl_encod(self):
-        X = self.X
-        X['LotShap'] = X['LotShap'].map({'Reg': 4, 'IR1': 3,
-                                         'IR2': 2, 'IR3':1})
-        X['Utilities'] = X['Utilities'].map({'AllPub': 4, 'NoSewr': 3,
-                                             'NoSeWa': 2, 'ELO': 1})
-        X['LandSlope'] = X['LandSlope'].map({'Gtl': 3, 'Mod':2, 'Sev': 1})
-        X['BldgType'] = X['BldgType'].map({'1Fam':5, '2FmCon':4, 'Duplx':3,
-                                           'TwnhsE': 2, 'TwnhsI':1})
-        X['HouseStyle'] = X['HouseStyle'].map({'SLvl':6, 'SFoyer':5,
-                                               '2.5Fin':4, '2.5Unf': 3.5,
-                                               '2Story':3, '1.5Fin': 2,
-                                               '1.5Unf': 1.5, '1Story': 1})
-
-
     def start(self):
         self._remove_collinearity_()
