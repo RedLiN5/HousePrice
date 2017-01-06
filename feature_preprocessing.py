@@ -35,25 +35,6 @@ class FeaturePreprocess(ReadData):
         self.dataframe = self.dataframe.drop(colname_remove,
                                              axis = 1)
 
-    def _convert_column(self, column):
-        """
-        Convert string to int in one column.
-        :param column: pandas.Series
-                       One column in dataframe.
-        :return: Converted column.
-        """
-        column_values = column[~column.isnull()]
-        is_string = column_values.apply(lambda x: isinstance(x, str)).any()
-
-        if is_string:
-            unique_values = list(set(column_values))
-            int_length = len(unique_values)
-
-            for i in range(int_length):
-                value = unique_values[i]
-                column.loc[column == value] = i+1
-
-        return column
 
     def _convert_(self):
         """
@@ -67,7 +48,7 @@ class FeaturePreprocess(ReadData):
 
         for name in colnames:
             column = dataframe[name]
-            dataframe[name] = self._convert_column(column=column)
+            dataframe[name] = _convert_column(column=column)
 
         self.dataframe = dataframe
 
@@ -110,3 +91,26 @@ class FeaturePreprocess(ReadData):
 
     def run_preprocessor(self):
         self._interpolate_()
+
+
+
+
+def _convert_column(column):
+    """
+    Convert string to int in one column.
+    :param column: pandas.Series
+                   One column in dataframe.
+    :return: Converted column.
+    """
+    column_values = column[~column.isnull()]
+    is_string = column_values.apply(lambda x: isinstance(x, str)).any()
+
+    if is_string:
+        unique_values = list(set(column_values))
+        int_length = len(unique_values)
+
+        for i in range(int_length):
+            value = unique_values[i]
+            column.loc[column == value] = i+1
+
+    return column
