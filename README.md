@@ -44,9 +44,35 @@ No! It's more ambiguous!
 
 **HouseStyle**: SLvl —— 6; SFoyer —— 5; 2.5Fin —— 4; 2.5Unf —— 3.5; 2Story —— 3; 1.5Fin —— 2; 1.5Unf —— 1.5; 1Story —— 1
 
+**ExterQual**: Ex —— 5; Gd —— 4; TA —— 3; Fa —— 2; Po —— 1
 
+**ExterCond**: Ex —— 5; Gd —— 4; TA —— 3; Fa —— 2; Po —— 1
 
+**Foundation**: PConc —— 4; CBlock —— 3; BrkTil —— 2; Slab, Stone, Wood —— 1
 
+**BsmtQual**: Ex —— 5; Gd —— 4; TA —— 3; Fa —— 2; Po —— 1, NA ——0
 
+**BsmtCond**: Ex —— 5; Gd —— 4; TA —— 3; Fa —— 2; Po —— 1, NA —— 0
 
+**BsmtExposure**: Gd —— 4; Av —— 3; Mn —— 2; No —— 1; NA —— 0
+
+**BsmtFinType1**: GLQ —— 6; ALQ —— 5; BLQ —— 4; Rec —— 3; LwQ —— 2; Unf —— 1; NA —— 0
+
+**BsmtFinType2**: GLQ —— 6; ALQ —— 5; BLQ —— 4; Rec —— 3; LwQ —— 2; Unf —— 1; NA —— 0
+
+**HeatingQC**: Ex —— 5; Gd —— 4; TA —— 3; Fa —— 2; Po —— 1
+
+**CentralAir**: Y —— 1; N —— 0
+
+**KitchenQual**: Ex —— 5; Gd —— 4; TA —— 3; Fa —— 2; Po —— 1
+
+**FireplaceQu**: Ex —— 5; Gd —— 4; TA —— 3; Fa —— 2; Po —— 1, NA ——0
+
+**GarageType**: 2Types —— 6; Attchd —— 5; Basment —— 4; BuiltIn —— 3; CarPort —— 2; Detchd —— 1; NA —— 0
+
+**GarageFinish**: Fin —— 3; RFn —— 2; Unf —— 1; NA —— 0
+
+**GarageQual**: Ex —— 5; Gd —— 4; TA —— 3; Fa —— 2; Po —— 1, NA —— 0
+
+**GarageCond**: Ex —— 5; Gd —— 4; TA —— 3; Fa —— 2; Po —— 1, NA —— 0
 
