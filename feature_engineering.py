@@ -15,7 +15,7 @@ class FeatureEngin(FeaturePreprocess):
         dataframe = self.dataframe.copy()
         self.y = dataframe['SalePrice']
         self.X = dataframe.drop('SalePrice',
-                                     axis = 1)
+                                axis = 1)
         self.vif = None
 
     def _feature_impact_(self):
