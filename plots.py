@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 class Plots(FeatureEngin):
 
     def __init__(self):
-        super(Plots, self).__init__()
+        super(Plots, self).__init__(filename='train.csv')
 
     def feature_impact(self):
         corr_scores = self._feature_impact_()
