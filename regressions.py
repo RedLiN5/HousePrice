@@ -144,6 +144,12 @@ class Regressions(FeatureEngin):
         pred_df.to_csv('results_xgb.csv',
                        sep=',')
 
+    def _polynomial_reg(self):
+        pass
+
+    def fit_polynomial(self):
+        pass
+
     def _generate_weight_indices(self):
         self._ridge_reg()
         self._xgb1_reg()
