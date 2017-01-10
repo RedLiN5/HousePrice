@@ -4,6 +4,8 @@ from feature_engineering import FeatureEngin
 from sklearn.linear_model import Ridge
 from sklearn.linear_model import Lasso
 from xgboost import XGBRegressor
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
@@ -14,7 +16,8 @@ from collections import Counter
 class Regressions(FeatureEngin):
 
     def __init__(self, filename, ispred=False):
-        super(Regressions, self).__init__(filename=filename)
+        super(Regressions, self).__init__(filename=filename,
+                                          ispred=ispred)
         self.feature_names = FeatureEngin.start(self)
         self.predictions = []
         self.ensemble_size = 10
@@ -144,8 +147,33 @@ class Regressions(FeatureEngin):
         pred_df.to_csv('results_xgb.csv',
                        sep=',')
 
-    def _polynomial_reg(self):
-        pass
+    def _ridge_interaction(self): # 0.749
+        model = make_pipeline(PolynomialFeatures(degree=1,
+                                                 interaction_only=True),
+                              Ridge(alpha=0.75,
+                                    fit_intercept=True,
+                                    normalize=True,
+                                    solver='auto',
+                                    random_state=1,
+                                    tol=.001))
+        self.ensemble_models.append(model)
+        model.fit(self.X_train.copy(),
+                  self.y_train.copy())
+        pred = model.predict(self.X_test.copy())
+        self.predictions.append(pred)
+
+    def _lasso_interaction(self): # 0.742
+        model = make_pipeline(PolynomialFeatures(degree=1,
+                                                 interaction_only=True),
+                              Lasso(alpha=170,
+                                    fit_intercept=True,
+                                    normalize=True,
+                                    random_state=1))
+        self.ensemble_models.append(model)
+        model.fit(self.X_train.copy(),
+                  self.y_train.copy())
+        pred = model.predict(self.X_test.copy())
+        self.predictions.append(pred)
 
     def fit_polynomial(self):
         pass
@@ -155,6 +183,8 @@ class Regressions(FeatureEngin):
         self._xgb1_reg()
         self._xgb2_reg()
         self._lasso_reg()
+        self._ridge_interaction()
+        self._lasso_interaction()
         predictions = self.predictions.copy()
         ensemble = []
         indices = []
@@ -166,7 +196,8 @@ class Regressions(FeatureEngin):
                 if s == 0:
                     y_weighted_ensemble_pred = np.zeros(predictions[0].shape)
                 else:
-                    y_ensemble_pred = np.mean(np.array(ensemble), axis=0)
+                    y_ensemble_pred = np.mean(np.array(ensemble),
+                                              axis=0)
                     y_weighted_ensemble_pred = (s / float(s + 1)) * \
                                                y_ensemble_pred
                 for j, pred in enumerate(predictions):
@@ -213,6 +244,7 @@ class Regressions(FeatureEngin):
         :return:
         """
         weights = self.weights
+        weights = [0, 0.38, 0.38, 0, 0.12, 0.12]
         ensemble_results = []
         for i, clf in enumerate(self.ensemble_models):
             pred = clf.predict(X_test.values)
