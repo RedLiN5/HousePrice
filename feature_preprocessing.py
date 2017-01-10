@@ -26,6 +26,7 @@ class FeaturePreprocess(ReadData):
     def _remove_missing_(self):
         """
         Remove columns with more than 40% missing values.
+        !! This part is only for predicting data.
         :return:
         """
         missing_count = self._missing_value()
