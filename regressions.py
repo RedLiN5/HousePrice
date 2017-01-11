@@ -36,6 +36,7 @@ class Regressions(FeatureEngin):
                     fit_intercept=True,
                     normalize=True,
                     solver='auto',
+                    max_iter=10000,
                     random_state=1,
                     tol=.001)
         self.ensemble_models.append(clf)
@@ -64,6 +65,7 @@ class Regressions(FeatureEngin):
         clf = Lasso(alpha=120,
                     fit_intercept=True,
                     normalize=True,
+                    max_iter=10000,
                     random_state=1)
         self.ensemble_models.append(clf)
         clf.fit(self.X_train.copy(),
@@ -244,7 +246,7 @@ class Regressions(FeatureEngin):
         :return:
         """
         weights = self.weights
-        weights = [0, 0.38, 0.38, 0, 0.12, 0.12]
+        # weights = [0, 0.4, 0, 0, 0.3, 0.3]
         ensemble_results = []
         for i, clf in enumerate(self.ensemble_models):
             pred = clf.predict(X_test.values)
