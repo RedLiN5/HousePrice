@@ -121,6 +121,17 @@ class FeaturePreprocess(ReadData):
                                                  'Fa':2, 'Po':1, 'NA':0})
         df['GarageCond'] = df['GarageCond'].map({'Ex':5, 'Gd':4, 'TA':3,
                                                  'Fa':2, 'Po':1, 'NA':0})
+        df["Functional"] = df["Functional"].map({None: 0, "Sal": 1, "Sev": 2,
+                                                 "Maj2": 3, "Maj1": 4, "Mod": 5,
+                                                 "Min2": 6, "Min1": 7, "Typ": 8})
+        df['SaleCondition'] = df['SaleCondition'].map({'Abnorml': 1, 'Alloca': 1,
+                                                       'AdjLand': 1, 'Family': 1, 'Normal': 0,
+                                                       'Partial': 0})
+        df['BuiltAge'] = 2011 - df['YearBuilt']
+        df['RemodelAge'] = 2011 - df['YearRemodAdd']
+        df.drop(['YearBuilt', 'YearRemodAdd'],
+                axis = 1,
+                inplace = True)
         self.dataframe = df
 
     def run_preprocessor(self):
