@@ -77,6 +77,8 @@ class FeaturePreprocess(ReadData):
         if ~self.ispred:
             self._remove_missing_()
         df = self.dataframe
+        df.drop('Id',
+                inplace = True)
         df['LotShape'] = df['LotShape'].map({'Reg': 4, 'IR1': 3,
                                              'IR2': 2, 'IR3': 1})
         # X['Utilities'] = X['Utilities'].map({'AllPub': 4, 'NoSewr': 3,
