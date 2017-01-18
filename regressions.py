@@ -5,6 +5,7 @@ from sklearn.linear_model import Ridge
 from sklearn.linear_model import Lasso
 from xgboost import XGBRegressor
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 import numpy as np
@@ -13,12 +14,9 @@ from sklearn.metrics import r2_score
 from collections import Counter
 
 
-class Regressions(FeatureEngin):
+class Regressions(object):
 
-    def __init__(self, filename, ispred=False):
-        super(Regressions, self).__init__(filename=filename,
-                                          ispred=ispred)
-        self.feature_names = FeatureEngin.start(self)
+    def __init__(self):
         self.predictions = []
         self.ensemble_size = 10
         self.ensemble_models = []
@@ -257,6 +255,49 @@ class Regressions(FeatureEngin):
                                index=ids)
         pred_df.to_csv('results_ensemble.csv',
                        sep=',')
+
+    def fit_artifical_model(self, X, y):
+        X_train, X_test, y_train, y_test = \
+            train_test_split(X.copy(), y.copy(),
+                             test_size=0.5, random_state=0)
+
+        self.xgb = XGBRegressor(max_depth=7,
+                                learning_rate=0.11,
+                                n_estimators=300,
+                                gamma=1,
+                                seed=1)
+        self.xgb.fit(X_train.copy().values,
+                     y_train.copy().values.flatten())
+        pred_xgb = self.xgb.predict(X_test.copy().values)
+
+        self.ridge = Ridge(alpha=0.7,fit_intercept=True,
+                           normalize=True,solver='auto',
+                           random_state=1,tol=.001)
+        self.ridge.fit(X_train.copy().values,
+                       y_train.copy().values.flatten())
+        pred_ridge = self.ridge.predict(X_test.copy().values)
+
+        self.lasso_inter = make_pipeline(PolynomialFeatures(degree=1,
+                                                      interaction_only=True),
+                              Lasso(alpha=170,fit_intercept=True,
+                                    normalize=True,random_state=1))
+        self.lasso_inter.fit(X_train.copy().values,
+                             y_train.copy().values.flatten())
+        pred_lasso_inter = self.lasso_inter.predict(X_test.copy().values)
+
+        self.lr = LinearRegression()
+        self.lr.fit(X = [pred_xgb, pred_ridge, pred_lasso_inter],
+               y = y_test.copy().values)
+
+        return self
+
+    def predict_artificial_model(self, X):
+        pred_xgb = self.xgb.predict(X.copy().values)
+        pred_ridge = self.ridge.predict(X.copy().values)
+        pred_lasso_inter = self.lasso_inter.predict(X.copy().values)
+        y_pred = self.lr.predict(X = [pred_xgb, pred_ridge, pred_lasso_inter])
+        return y_pred
+
 
     def run(self):
         # TODO(Leslie) add last function to run
