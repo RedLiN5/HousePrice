@@ -177,9 +177,6 @@ class Regressions(FeatureEngin):
         pred = model.predict(self.X_test.copy())
         self.predictions.append(pred)
 
-    def fit_polynomial(self):
-        pass
-
     def _generate_weight_indices(self):
         self._ridge_reg()
         self._xgb1_reg()
