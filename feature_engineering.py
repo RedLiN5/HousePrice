@@ -95,3 +95,4 @@ class FeatureEngin(FeaturePreprocess):
 
     def start(self):
         self._remove_collinearity_()
+        return self.X, self.y
