@@ -20,7 +20,6 @@ class Regressions(object):
         self.predictions = []
         self.ensemble_size = 10
         self.ensemble_models = []
-        self._split_data()
 
     def _split_data(self):
         X, y = self.X.copy(), self.y.copy()
@@ -256,7 +255,17 @@ class Regressions(object):
         pred_df.to_csv('results_ensemble.csv',
                        sep=',')
 
+
+class AM(object):
+
+    def __init__(self):
+        pass;
+
     def fit_artifical_model(self, X, y):
+        """
+        :param X: pandas DataFrame
+        :param y: pandas DataFrame
+        """
         X_train, X_test, y_train, y_test = \
             train_test_split(X.copy(), y.copy(),
                              test_size=0.5, random_state=0)
@@ -286,8 +295,11 @@ class Regressions(object):
         pred_lasso_inter = self.lasso_inter.predict(X_test.copy().values)
 
         self.lr = LinearRegression()
-        self.lr.fit(X = [pred_xgb, pred_ridge, pred_lasso_inter],
-                    y = y_test.copy().values)
+        X_array = np.array([pred_xgb,
+                            pred_ridge,
+                            pred_lasso_inter]).T
+        self.lr.fit(X = X_array,
+                    y = y_test.copy().values.flatten())
 
         return self
 
@@ -295,10 +307,8 @@ class Regressions(object):
         pred_xgb = self.xgb.predict(X.copy().values)
         pred_ridge = self.ridge.predict(X.copy().values)
         pred_lasso_inter = self.lasso_inter.predict(X.copy().values)
-        y_pred = self.lr.predict(X = [pred_xgb, pred_ridge, pred_lasso_inter])
+        X_array = np.array([pred_xgb,
+                            pred_ridge,
+                            pred_lasso_inter]).T
+        y_pred = self.lr.predict(X = X_array)
         return y_pred
-
-
-    def run(self):
-        # TODO(Leslie) add last function to run
-        pass
