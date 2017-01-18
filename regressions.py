@@ -278,7 +278,7 @@ class Regressions(object):
         pred_ridge = self.ridge.predict(X_test.copy().values)
 
         self.lasso_inter = make_pipeline(PolynomialFeatures(degree=1,
-                                                      interaction_only=True),
+                                                            interaction_only=True),
                               Lasso(alpha=170,fit_intercept=True,
                                     normalize=True,random_state=1))
         self.lasso_inter.fit(X_train.copy().values,
@@ -287,7 +287,7 @@ class Regressions(object):
 
         self.lr = LinearRegression()
         self.lr.fit(X = [pred_xgb, pred_ridge, pred_lasso_inter],
-               y = y_test.copy().values)
+                    y = y_test.copy().values)
 
         return self
 
