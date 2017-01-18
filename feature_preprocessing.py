@@ -136,6 +136,7 @@ class FeaturePreprocess(ReadData):
 
     def run_preprocessor(self):
         self._interpolate_()
+        return self.dataframe
 
 
 
