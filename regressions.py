@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import r2_score
 from collections import Counter
+from pyearth import Earth
 
 
 class Regressions(object):
@@ -44,7 +45,7 @@ class Regressions(object):
         ids = X_test.index
         pred_df = pd.DataFrame({'SalePrice':preds},
                                index=ids)
-        pred_df.to_csv('results_ridge.csv',
+        pred_df.to_csv('results/results_ridge.csv',
                        sep=',')
 
     def fit_lasso(self, X_test):
@@ -58,7 +59,7 @@ class Regressions(object):
         ids = X_test.index
         pred_df = pd.DataFrame({'SalePrice':preds},
                                index=ids)
-        pred_df.to_csv('results_lasso.csv',
+        pred_df.to_csv('results/results_lasso.csv',
                        sep=',')
 
     def fit_xgb(self, X_test):
@@ -73,7 +74,7 @@ class Regressions(object):
         ids = X_test.index
         pred_df = pd.DataFrame({'SalePrice': preds},
                                index=ids)
-        pred_df.to_csv('results_xgb.csv',
+        pred_df.to_csv('results/results_xgb.csv',
                        sep=',')
 
     def fit_pls(self, X_test):
@@ -87,7 +88,21 @@ class Regressions(object):
         pred_df = pd.DataFrame(data = preds,
                                index = ids,
                                columns=['SalePrice'])
-        pred_df.to_csv('results_pls.csv',
+        pred_df.to_csv('results/results_pls.csv',
+                       sep=',')
+
+    def fit_mars(self, X_test):
+        reg = Earth(max_terms=1000,
+                    max_degree=1,
+                    penalty=3)
+        reg.fit(self.X.copy().values,
+                self.y.copy().values.flatten())
+        preds = reg.predict(X_test.copy().values)
+        ids = X_test.index
+        pred_df = pd.DataFrame(data=preds,
+                               index=ids,
+                               columns=['SalePrice'])
+        pred_df.to_csv('results/results_mars.csv',
                        sep=',')
 
     def _xgb1_reg(self): # 0.898
@@ -270,7 +285,7 @@ class Regressions(object):
         ids = X_test.index
         pred_df = pd.DataFrame({'SalePrice': result},
                                index=ids)
-        pred_df.to_csv('results_ensemble.csv',
+        pred_df.to_csv('results/results_ensemble.csv',
                        sep=',')
 
 
