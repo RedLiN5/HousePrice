@@ -5,7 +5,7 @@ from sklearn.linear_model import Ridge
 from sklearn.linear_model import Lasso
 from xgboost import XGBRegressor
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 import numpy as np
@@ -294,11 +294,11 @@ class AM(object):
                              y_train.copy().values.flatten())
         pred_lasso_inter = self.lasso_inter.predict(X_test.copy().values)
 
-        self.lr = LinearRegression()
+        self.rf = RandomForestRegressor()
         X_array = np.array([pred_xgb,
                             pred_ridge,
                             pred_lasso_inter]).T
-        self.lr.fit(X = X_array,
+        self.rf.fit(X = X_array,
                     y = y_test.copy().values.flatten())
 
         return self
@@ -310,5 +310,5 @@ class AM(object):
         X_array = np.array([pred_xgb,
                             pred_ridge,
                             pred_lasso_inter]).T
-        y_pred = self.lr.predict(X = X_array)
+        y_pred = self.rf.predict(X = X_array)
         return y_pred
