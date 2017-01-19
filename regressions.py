@@ -8,6 +8,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
+from sklearn.cross_decomposition import PLSRegression
 import numpy as np
 import pandas as pd
 from sklearn.metrics import r2_score
@@ -73,6 +74,20 @@ class Regressions(object):
         pred_df = pd.DataFrame({'SalePrice': preds},
                                index=ids)
         pred_df.to_csv('results_xgb.csv',
+                       sep=',')
+
+    def fit_pls(self, X_test):
+        reg = PLSRegression(n_components=20,
+                            scale=False,
+                            max_iter=1000)
+        reg.fit(self.X.copy().values,
+                self.y.copy().values.flatten())
+        preds = reg.predict(X_test.copy().values)
+        ids = X_test.index
+        pred_df = pd.DataFrame(data = preds,
+                               index = ids,
+                               columns=['SalePrice'])
+        pred_df.to_csv('results_pls.csv',
                        sep=',')
 
     def _xgb1_reg(self): # 0.898
@@ -177,6 +192,7 @@ class Regressions(object):
         self.predictions.append(pred)
 
     def _generate_weight_indices(self):
+        self._split_data()
         self._ridge_reg()
         self._xgb1_reg()
         self._xgb2_reg()
