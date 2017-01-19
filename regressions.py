@@ -16,10 +16,12 @@ from collections import Counter
 
 class Regressions(object):
 
-    def __init__(self):
+    def __init__(self, X_train, y_train):
         self.predictions = []
         self.ensemble_size = 10
         self.ensemble_models = []
+        self.X = X_train
+        self.y = y_train
 
     def _split_data(self):
         X, y = self.X.copy(), self.y.copy()
@@ -27,20 +29,6 @@ class Regressions(object):
         self.y_test = train_test_split(X, y,
                                        test_size=0.3,
                                        random_state=0)
-
-    def _ridge_reg(self): # 0.736
-        clf = Ridge(alpha=0.7,
-                    fit_intercept=True,
-                    normalize=True,
-                    solver='auto',
-                    max_iter=10000,
-                    random_state=1,
-                    tol=.001)
-        self.ensemble_models.append(clf)
-        clf.fit(self.X_train.copy(),
-                self.y_train.copy())
-        pred = clf.predict(self.X_test.copy())
-        self.predictions.append(pred)
 
     def fit_ridge(self, X_test):
         clf = Ridge(alpha=0.7,
@@ -58,18 +46,6 @@ class Regressions(object):
         pred_df.to_csv('results_ridge.csv',
                        sep=',')
 
-    def _lasso_reg(self): # 0.730
-        clf = Lasso(alpha=120,
-                    fit_intercept=True,
-                    normalize=True,
-                    max_iter=10000,
-                    random_state=1)
-        self.ensemble_models.append(clf)
-        clf.fit(self.X_train.copy(),
-                self.y_train.copy())
-        pred = clf.predict(self.X_test.copy())
-        self.predictions.append(pred)
-
     def fit_lasso(self, X_test):
         clf = Lasso(alpha=120,
                     fit_intercept=True,
@@ -82,6 +58,21 @@ class Regressions(object):
         pred_df = pd.DataFrame({'SalePrice':preds},
                                index=ids)
         pred_df.to_csv('results_lasso.csv',
+                       sep=',')
+
+    def fit_xgb(self, X_test):
+        clf = XGBRegressor(max_depth=7,
+                           learning_rate=0.11,
+                           n_estimators=300,
+                           gamma=1,
+                           seed=1)
+        clf.fit(self.X.copy().values,
+                self.y.copy().values.flatten())
+        preds = clf.predict(data=X_test.values)
+        ids = X_test.index
+        pred_df = pd.DataFrame({'SalePrice': preds},
+                               index=ids)
+        pred_df.to_csv('results_xgb.csv',
                        sep=',')
 
     def _xgb1_reg(self): # 0.898
@@ -108,6 +99,32 @@ class Regressions(object):
         pred = clf.predict(self.X_test.copy().values)
         self.predictions.append(pred)
 
+    def _ridge_reg(self): # 0.736
+        clf = Ridge(alpha=0.7,
+                    fit_intercept=True,
+                    normalize=True,
+                    solver='auto',
+                    max_iter=10000,
+                    random_state=1,
+                    tol=.001)
+        self.ensemble_models.append(clf)
+        clf.fit(self.X_train.copy(),
+                self.y_train.copy())
+        pred = clf.predict(self.X_test.copy())
+        self.predictions.append(pred)
+
+    def _lasso_reg(self): # 0.730
+        clf = Lasso(alpha=120,
+                    fit_intercept=True,
+                    normalize=True,
+                    max_iter=10000,
+                    random_state=1)
+        self.ensemble_models.append(clf)
+        clf.fit(self.X_train.copy(),
+                self.y_train.copy())
+        pred = clf.predict(self.X_test.copy())
+        self.predictions.append(pred)
+
     def _xgb_test_reg(self): # 0.898
         depths = [5,6,7,8,9]
         rates = np.linspace(0.09, 0.15, 7)
@@ -130,21 +147,6 @@ class Regressions(object):
         print('best score:', sorted(scores, reverse=True)[:3])
         # pred = clf.predict(self.X_test.copy().values)
         # self.predictions.append(pred)
-
-    def fit_xgb(self, X_test):
-        clf = XGBRegressor(max_depth=7,
-                           learning_rate=0.11,
-                           n_estimators=300,
-                           gamma=1,
-                           seed=1)
-        clf.fit(self.X.copy().values,
-                self.y.copy().values.flatten())
-        preds = clf.predict(data=X_test.values)
-        ids = X_test.index
-        pred_df = pd.DataFrame({'SalePrice': preds},
-                               index=ids)
-        pred_df.to_csv('results_xgb.csv',
-                       sep=',')
 
     def _ridge_interaction(self): # 0.749
         model = make_pipeline(PolynomialFeatures(degree=1,
