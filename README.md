@@ -18,6 +18,12 @@ No! It's more ambiguous!
 
 
 
+Price distribution
+
+![Price Distribution](price_distribution.png)
+
+
+
 ### Features with severe collinearity
 
 
