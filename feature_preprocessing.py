@@ -20,7 +20,6 @@ class FeaturePreprocess(ReadData):
         """
         dataframe = self.dataframe.copy()
         missing_count = dataframe.isnull().sum()
-        # print(missing_count)
         return missing_count
 
     def _remove_missing_(self):
@@ -89,7 +88,7 @@ class FeaturePreprocess(ReadData):
         self.dataframe = dataframe
 
     def _domain_knwl_encod(self):
-        if ~self.ispred:
+        if not self.ispred:
             self._remove_outliers()
         df = self.dataframe
         qual_dict = {'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5}
