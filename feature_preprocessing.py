@@ -36,6 +36,13 @@ class FeaturePreprocess(ReadData):
         self.dataframe = self.dataframe.drop(colname_remove,
                                              axis = 1)
 
+    def _remove_outliers(self):
+        self._remove_missing_()
+        df = self.dataframe
+        df.drop(df[df["GrLivArea"] > 4000].index,
+                inplace=True)
+        self.dataframe = df
+
 
     def _convert_(self):
         """
@@ -64,6 +71,14 @@ class FeaturePreprocess(ReadData):
         col_missing = missing_count[missing_count > 0]
         colnames_missing = col_missing.index.tolist()
 
+        lot_frontage_by_neighborhood = dataframe["LotFrontage"].\
+            groupby(dataframe["Neighborhood"])
+
+        for key, group in lot_frontage_by_neighborhood:
+            idx = (dataframe["Neighborhood"] == key) & \
+                  (dataframe["LotFrontage"].isnull())
+            dataframe.loc[idx, "LotFrontage"] = group.median()
+
         for colname in colnames_missing:
             column = dataframe[colname]
             index_missing = column.isnull()
@@ -75,12 +90,11 @@ class FeaturePreprocess(ReadData):
 
     def _domain_knwl_encod(self):
         if ~self.ispred:
-            self._remove_missing_()
+            self._remove_outliers()
         df = self.dataframe
+        qual_dict = {'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5}
         df['LotShape'] = df['LotShape'].map({'Reg': 4, 'IR1': 3,
                                              'IR2': 2, 'IR3': 1})
-        # X['Utilities'] = X['Utilities'].map({'AllPub': 4, 'NoSewr': 3,
-        #                                      'NoSeWa': 2, 'ELO': 1})
         df['LandSlope'] = df['LandSlope'].map({'Gtl': 3, 'Mod':2, 'Sev': 1})
         df['BldgType'] = df['BldgType'].map({'1Fam':5, '2FmCon':4, 'Duplx':3,
                                              'TwnhsE': 2, 'TwnhsI':1})
@@ -88,39 +102,30 @@ class FeaturePreprocess(ReadData):
                                                  '2.5Fin':4, '2.5Unf': 3.5,
                                                  '2Story':3, '1.5Fin': 2,
                                                  '1.5Unf': 1.5, '1Story': 1})
-        df['ExterQual'] = df['ExterQual'].map({'Ex':5, 'Gd':4, 'TA':3,
-                                               'Fa':2, 'Po':1})
-        df['ExterCond'] = df['ExterCond'].map({'Ex':5, 'Gd':4, 'TA':3,
-                                               'Fa':2, 'Po':1})
+        df['ExterQual'] = df['ExterQual'].map(qual_dict)
+        df['ExterCond'] = df['ExterCond'].map(qual_dict)
         df['Foundation'] = df['Foundation'].map({'PConc':4, 'CBlock':3, 'BrkTil':2,
                                                  'Slab':1, 'Stone':1, 'Wood':1})
-        df['BsmtQual'] = df['BsmtQual'].map({'Ex':5, 'Gd':4, 'TA':3,
-                                             'Fa':2, 'Po':1, 'NA':0})
-        df['BsmtCond'] = df['BsmtCond'].map({'Ex':5, 'Gd':4, 'TA':3,
-                                             'Fa':2, 'Po':1, 'NA':0})
-        df['BsmtExposure'] = df['BsmtExposure'].map({'Ex':5, 'Gd':4, 'TA':3,
-                                                     'Fa':2, 'Po':1, 'NA':0})
+        df['BsmtQual'] = df['BsmtQual'].map(qual_dict)
+        df['BsmtCond'] = df['BsmtCond'].map(qual_dict)
+        df['BsmtExposure'] = df['BsmtExposure'].map(qual_dict)
         df['BsmtFinType1'] = df['BsmtFinType1'].map({'GLQ':6, 'ALQ':5, 'BLQ':4,
                                                      'Rec':3, 'LwQ':2, 'Unf':1,
                                                      'NA':0})
         df['BsmtFinType2'] = df['BsmtFinType2'].map({'GLQ':6, 'ALQ':5, 'BLQ':4,
                                                      'Rec':3, 'LwQ':2, 'Unf':1,
                                                      'NA':0})
-        df['HeatingQC'] = df['HeatingQC'].map({'Ex':5, 'Gd':4, 'TA':3,
-                                               'Fa':2, 'Po':1})
+        df['HeatingQC'] = df['HeatingQC'].map(qual_dict)
         df['CentralAir'] = df['CentralAir'].map({'Y':1, 'N':0})
-        df['KitchenQual'] = df['KitchenQual'].map({'Ex':5, 'Gd':4, 'TA':3,
-                                                   'Fa':2, 'Po':1})
+        df['KitchenQual'] = df['KitchenQual'].map(qual_dict)
         df['GarageType'] = df['GarageType'].map({'2Types':6, 'Attchd':5,
                                                  'Basment':4, 'BuiltIn':3,
                                                  'CarPort':2, 'Detchd':1,
                                                  'NA':0})
         df['GarageFinish'] = df['GarageFinish'].map({'Fin':3, 'RFn':2,
                                                      'Unf':1, 'NA':0})
-        df['GarageQual'] = df['GarageQual'].map({'Ex':5, 'Gd':4, 'TA':3,
-                                                 'Fa':2, 'Po':1, 'NA':0})
-        df['GarageCond'] = df['GarageCond'].map({'Ex':5, 'Gd':4, 'TA':3,
-                                                 'Fa':2, 'Po':1, 'NA':0})
+        df['GarageQual'] = df['GarageQual'].map(qual_dict)
+        df['GarageCond'] = df['GarageCond'].map(qual_dict)
         df["Functional"] = df["Functional"].map({None: 0, "Sal": 1, "Sev": 2,
                                                  "Maj2": 3, "Maj1": 4, "Mod": 5,
                                                  "Min2": 6, "Min1": 7, "Typ": 8})
