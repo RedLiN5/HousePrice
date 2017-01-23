@@ -32,8 +32,11 @@ class FeaturePreprocess(ReadData):
         col_remove = missing_count[missing_count>self.rownum * .4]
         colname_remove = col_remove.index.tolist()
         self.colname_remove_prep = col_remove
-        self.dataframe = self.dataframe.drop(colname_remove,
-                                             axis = 1)
+        df = self.dataframe.copy()
+        df = df.drop(colname_remove, axis = 1)
+        X = df.drop(['SalePrice'], axis = 1)
+        self.numeric_features = X.dtypes[X.dtypes != "object"].index
+        self.dataframe = df
 
     def _remove_outliers(self):
         self._remove_missing_()
@@ -132,7 +135,7 @@ class FeaturePreprocess(ReadData):
         df.loc[df.Neighborhood == 'Somerst', "Neighborhood_Good"] = 1
         df.loc[df.Neighborhood == 'NoRidge', "Neighborhood_Good"] = 1
         df["Neighborhood_Good"].fillna(0, inplace=True)
-        df.drop(['MoSold'], axis=1, inplace=True)
+        # df.drop(['MoSold'], axis=1, inplace=True)
 
         qual_dict = {'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5}
         df['LotShape'] = df['LotShape'].map({'Reg': 4, 'IR1': 3,
