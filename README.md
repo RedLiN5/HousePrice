@@ -1,5 +1,11 @@
 ## House Price Prediction
 
+### Final Score: 0.13348 
+
+
+
+
+
 The feature importance is calculated by **Pearson Correlation Coefficents** and **Mutual Information**.
 
 ![Feature Importance](feature_impact.png)
