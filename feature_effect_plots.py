@@ -7,7 +7,7 @@ import numpy as np
 reader = FeaturePreprocess('train.csv', ispred=False)
 df = reader.run_preprocessor()
 
-# print(len(df.columns))
+print(len(df.columns))
 y = np.array(df['SalePrice'])
 
 features_name = ['OverallQual', 'GrLivArea', 'GarageCars', 'GarageArea',
