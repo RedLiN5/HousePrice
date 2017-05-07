@@ -8,7 +8,7 @@
 
 The feature importance is calculated by **Pearson Correlation Coefficents** and **Mutual Information**.
 
-![Feature Importance](feature_impact.png)
+![Feature Importance](plots/feature_impact.png)
 
 
 
@@ -18,7 +18,7 @@ This plot cannot show significant difference between important features and less
 
 So I accumulate feature impact ratios to see if it's more clear.
 
-![Accumulative Feature Impact](accum_feature_impact.png)
+![Accumulative Feature Impact](plots/accum_feature_impact.png)
 
 No! It's more ambiguous!
 
@@ -26,7 +26,7 @@ No! It's more ambiguous!
 
 Price distribution
 
-![Price Distribution](price_distribution.png)
+![Price Distribution](plots/price_distribution.png)
 
 
 
