@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import numpy as np
 import statistics
 from datasets import ReadData
+from sklearn.linear_model import LinearRegression
 
 class FeaturePreprocess(ReadData):
 
-    def __init__(self, filename, ispred=False):
-        super(FeaturePreprocess, self).__init__(filname=filename)
-        self.load()
+    def __init__(self, trainFile, testFile, ispred=False):
+        super(FeaturePreprocess, self).__init__(trainFile=trainFile,
+                                                testFile=testFile)
         self.rownum = self.dataframe.shape[0]
         self.colnum = self.dataframe.shape[1]
         self.ispred = ispred
@@ -22,7 +24,7 @@ class FeaturePreprocess(ReadData):
         missing_count = dataframe.isnull().sum()
         return missing_count
 
-    def _remove_missing_(self):
+    def _remove_NA_col(self):
         """
         Remove columns with more than 40% missing values.
         !! This part is only for predicting data.
@@ -34,12 +36,44 @@ class FeaturePreprocess(ReadData):
         self.colname_remove_prep = col_remove
         df = self.dataframe.copy()
         df = df.drop(colname_remove, axis = 1)
-        X = df.drop(['SalePrice'], axis = 1)
-        self.numeric_features = X.dtypes[X.dtypes != "object"].index
+        self.numeric_features = df.dtypes[df.dtypes != "object"].index
         self.dataframe = df
 
+    def _fill_NA(self):
+        self._remove_NA_col()
+        df = self.dataframe.copy()
+        df['MSZoning'].fillna(statistics.mode(df['MSZoning']),
+                              inplace=True)
+
+        LotFront_NA_index = df['LotFrontage'].isnull()
+        LR = LinearRegression()
+        LR.fit(df['LotArea'][~LotFront_NA_index].values.reshape(-1,1),
+               df['LotFrontage'][~LotFront_NA_index])
+        LotFront_pred = LR.predict(df['LotArea'][LotFront_NA_index].values.reshape(-1,1))
+        df.ix[LotFront_NA_index, 'LotFrontage'] = list(map(int, np.round(LotFront_pred)))
+
+        df['Utilities'].fillna(statistics.mode(df['Utilities']),
+                               inplace=True)
+
+        df['Exterior1st'].fillna(statistics.mode(df['Exterior1st']),
+                                 inplace=True)
+        df['Exterior2nd'].fillna(statistics.mode(df['Exterior2nd']),
+                                 inplace=True)
+
+        df['MasVnrArea'].fillna(0,
+                                inplace=True)
+        df['MasVnrType'].fillna('None',
+                                inplace=True)
+        df.ix[:, ['BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF']] = \
+            df[['BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF']].fillna(0)
+        df.ix[:, ['BsmtFullBath', 'BsmtHalfBath']] = \
+            df[['BsmtFullBath', 'BsmtHalfBath']].fillna(0)
+        # GarageYr_NA_index = df['GarageYrBlt'].isnull()
+        # df.ix[GarageYr_NA_index, 'GarageYrBlt'] = df.ix[GarageYr_NA_index, 'YearBuilt']
+        print(df.isnull().sum()[:40])
+
     def _remove_outliers(self):
-        self._remove_missing_()
+        self._remove_NA_col()
         df = self.dataframe
         df.drop(df[df["GrLivArea"] > 4000].index,
                 inplace = True)
@@ -224,3 +258,8 @@ def _convert_column(column):
             column.loc[column == value] = i+1
 
     return column
+
+
+if __name__ == '__main__':
+    FeaturePreprocess(trainFile='train.csv',
+                      testFile='test.csv')._fill_NA()
