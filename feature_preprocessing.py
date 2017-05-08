@@ -70,12 +70,16 @@ class FeaturePreprocess(ReadData):
             df[['BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF']].fillna(0)
         df.ix[:, ['BsmtFullBath', 'BsmtHalfBath']] = \
             df[['BsmtFullBath', 'BsmtHalfBath']].fillna(0)
-        df['Electrical'] = df['Electrical'].fillna(statistics.mode(df['Electrical']))
-        df['KitchenQual'] = df['KitchenQual'].fillna(statistics.mode(df['KitchenQual']))
-        df['Functional'] = df['Functional'].fillna(statistics.mode(df['Functional']))
-        df['SaleType'] = df['SaleType'].fillna(statistics.mode(df['SaleType']))
+        df['Electrical'].fillna(statistics.mode(df['Electrical']),
+                                inplace=True)
+        df['KitchenQual'].fillna(statistics.mode(df['KitchenQual']),
+                                 inplace=True)
+        df['Functional'].fillna(statistics.mode(df['Functional']),
+                                inplace=True)
+        df['SaleType'].fillna(statistics.mode(df['SaleType']),
+                              inplace=True)
 
-        print(df.isnull().sum()[-40:])
+        print(df.isnull().sum()[df.isnull().sum()>0])
 
         df['BldgType'] = df['BldgType'].map({'1Fam':5, '2FmCon':4, 'Duplx':3,
                                              'TwnhsE': 2, 'TwnhsI':1})
