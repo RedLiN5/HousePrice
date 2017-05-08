@@ -4,6 +4,8 @@ import numpy as np
 import statistics
 from datasets import ReadData
 from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+
 
 class FeaturePreprocess(ReadData):
 
@@ -68,9 +70,49 @@ class FeaturePreprocess(ReadData):
             df[['BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF']].fillna(0)
         df.ix[:, ['BsmtFullBath', 'BsmtHalfBath']] = \
             df[['BsmtFullBath', 'BsmtHalfBath']].fillna(0)
-        # GarageYr_NA_index = df['GarageYrBlt'].isnull()
-        # df.ix[GarageYr_NA_index, 'GarageYrBlt'] = df.ix[GarageYr_NA_index, 'YearBuilt']
-        print(df.isnull().sum()[:40])
+        df['Electrical'] = df['Electrical'].fillna(statistics.mode(df['Electrical']))
+        df['KitchenQual'] = df['KitchenQual'].fillna(statistics.mode(df['KitchenQual']))
+        df['Functional'] = df['Functional'].fillna(statistics.mode(df['Functional']))
+        df['SaleType'] = df['SaleType'].fillna(statistics.mode(df['SaleType']))
+
+        print(df.isnull().sum()[-40:])
+
+        df['BldgType'] = df['BldgType'].map({'1Fam':5, '2FmCon':4, 'Duplx':3,
+                                             'TwnhsE': 2, 'TwnhsI':1})
+        df['HouseStyle'] = df['HouseStyle'].map({'SLvl':6, 'SFoyer':5,
+                                                 '2.5Fin':4, '2.5Unf': 3.5,
+                                                 '2Story':3, '1.5Fin': 2,
+                                                 '1.5Unf': 1.5, '1Story': 1})
+        df['ExterQual'] = df['ExterQual'].map({'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5})
+        df['ExterCond'] = df['ExterCond'].map({'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5})
+        df['BsmtQual'] = df['BsmtQual'].map({'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5})
+        df['BsmtCond'] = df['BsmtCond'].map({'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5})
+
+        df['BsmtExposure'] = df['BsmtExposure'].map({'NA': 0, "No": 1, "Mn": 2, "Av": 3, "Gd": 4})
+        df['BsmtFinType1'] = df['BsmtFinType1'].map({'GLQ': 6, 'ALQ': 5, 'BLQ': 4,
+                                                     'Rec': 3, 'LwQ': 2, 'Unf': 1,
+                                                     'NA': 0})
+        df['BsmtFinType2'] = df['BsmtFinType2'].map({'GLQ': 6, 'ALQ': 5, 'BLQ': 4,
+                                                     'Rec': 3, 'LwQ': 2, 'Unf': 1,
+                                                     'NA': 0})
+
+        # BsmtCond_NA_index = df['BsmtFinType1'].isnull()
+        #
+        # BsmtCond_df = df.ix[~BsmtCond_NA_index, ['ExterQual','BsmtFinType1']].groupby(['ExterQual', 'BsmtFinType1']).size().reset_index(name="Time")
+        # for i in range(BsmtCond_df.shape[0]):
+        #     plt.scatter(BsmtCond_df.ix[i, 'ExterQual'],
+        #                 BsmtCond_df.ix[i, 'BsmtFinType1'],
+        #                 s=BsmtCond_df.ix[i, 'Time'],
+        #                 c='b')
+        # NA_index = df['BsmtFinType1'].isnull()
+        # plt.scatter(df.ix[~NA_index, 'BsmtUnfSF'],
+        #             df.ix[~NA_index, 'BsmtFinType1'])
+        # plt.xlabel('BsmtUnfSF')
+        # plt.ylabel('BsmtFinType1')
+        # plt.savefig('feature_relation/BsmtUnfSF_BsmtFinType1.png')
+        # print(df.ix[:40, ['YearBuilt', 'YearRemodAdd', 'OverallQual', 'OverallCond', 'ExterQual', 'ExterCond', 'BsmtQual', 'BsmtCond', 'BsmtExposure']])
+
+
 
     def _remove_outliers(self):
         self._remove_NA_col()
