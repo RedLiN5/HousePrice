@@ -2,6 +2,126 @@
 
 ### Final Score: 0.13348 
 
+# Table of Contents
+
+* [Preprocessing](#preprocessing)
+  * [Remove Columns](#Example)
+  * [Fill Missing Values](#fillnas)
+
+
+
+## Preprocessing
+
+### Remove Columns 
+
+```python
+>>>missing_count = dataframe.isnull().sum()
+>>>col_remove = missing_count[missing_count > rownum * .4]
+>>>colname_remove = col_remove.index.tolist()
+
+Alley          2721
+FireplaceQu    1420
+PoolQC         2909
+Fence          2348
+MiscFeature    2814
+```
+
+Because filling missing values is based on the information provided by the original feature, so it will be extremely hard to extract enough information from a feature with too many missing values. Most of significant relations have already lost, and the "made-up" values to fill these missing values may cause the original feature unconvincible. 
+
+Thus, those columns will be removed because of too many missing values.
+
+
+
+###  Fill Missing Values
+
+```python
+>>> df.isnull().sum()[df.isnull().sum()>0]
+
+MSZoning          4
+LotFrontage     486
+Utilities         2
+Exterior1st       1
+Exterior2nd       1
+MasVnrType       24
+MasVnrArea       23
+BsmtQual         81
+BsmtCond         82
+BsmtExposure     82
+BsmtFinType1     79
+BsmtFinSF1        1
+BsmtFinType2     80
+BsmtFinSF2        1
+BsmtUnfSF         1
+TotalBsmtSF       1
+Electrical        1
+BsmtFullBath      2
+BsmtHalfBath      2
+KitchenQual       1
+Functional        2
+GarageType      157
+GarageYrBlt     159
+GarageFinish    159
+GarageCars        1
+GarageArea        1
+GarageQual      159
+GarageCond      159
+SaleType          1
+dtype: int64
+```
+
+After that, only 29 out of 74 features still have missing values and lots of them only have a couple of missing values.
+
+Therefore, I would use **mode** to fill missing values from those columns with only a couple of NAs. 
+
+```python
+df['MSZoning'].fillna(statistics.mode(df['MSZoning']),
+                      inplace=True)
+df['Utilities'].fillna(statistics.mode(df['Utilities']),
+                       inplace=True)
+df['Exterior1st'].fillna(statistics.mode(df['Exterior1st']),
+                         inplace=True)
+df['Exterior2nd'].fillna(statistics.mode(df['Exterior2nd']),
+                         inplace=True)
+df['MasVnrArea'].fillna(0,
+                        inplace=True)
+df['MasVnrType'].fillna('None',
+                        inplace=True)
+df['Electrical'].fillna(statistics.mode(df['Electrical']), 
+                        inplace=True)
+df['KitchenQual'].fillna(statistics.mode(df['KitchenQual']), 
+                         inplace=True)
+df['Functional'].fillna(statistics.mode(df['Functional']), 
+                        inplace=True)
+df['SaleType'].fillna(statistics.mode(df['SaleType']), 
+                      inplace=True)
+```
+
+
+
+Now there are only 12 columns still having missing values. 
+
+```python
+BsmtQual         81
+BsmtCond         82
+BsmtExposure     82
+BsmtFinType1     79
+BsmtFinType2     80
+GarageType      157
+GarageYrBlt     159
+GarageFinish    159
+GarageCars        1
+GarageArea        1
+GarageQual      159
+GarageCond      159
+dtype: int64
+```
+
+
+
+
+
+
+
 
 
 
