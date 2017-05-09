@@ -7,8 +7,8 @@
 # Table of Contents
 
 * [Preprocessing](#Preprocessing)
-  * [Remove Columns](#remove columns)
-  * [Fill Missing Values](#fill missing values)
+  * [Remove Columns](#Remove Columns)
+  * [Fill Missing Values](#Fill Missing Values)
 * [Feature Effects](#Feature Effects)
 
 
@@ -146,6 +146,24 @@ From those 4 plots above, it's obvious that `BsmtQual` has relations with `Exter
 ![OverallQual vs BsmtCond](feature_relation/OverallQual_BsmtCond.png)
 
 However, I can find that `BsmtCond` has no significant relation with `OverallCond`, `ExterCond`, `ExterQual` or `OverallQual`.  Thus, `"TA"`, corresponding to `3`, is a reasonable value fill missing values in `BsmtCond`.
+
+
+
+I assume that `GarageQual` may have some potential relations with `ExterQual`, `ExterCond` or `OverallQual`.
+
+![ExterQual vs GarageQual](feature_relation/ExterQual_GarageQual.png)
+
+![ExterCond vs GarageQual](feature_relation/ExterCond_GarageQual.png)
+
+![OverallQual vs GarageQual](feature_relation/OverallQual_GarageQual.png)
+
+From those plots above, most of values from `GarageQual` are located at `3` which corresponding to `Typical/Average`. Thus, I will fill missing values in `GarageQual` with `3`.
+
+Same condition happends to `GarageCond`, and those missing values in `GarageCond` are filled with `3` corresponding to `Typical/Average`.
+
+
+
+
 
 
 
