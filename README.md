@@ -1,14 +1,15 @@
-## House Price Prediction
+# House Price in Kaggle
 
-### Final Score: 0.13348 
+
+
+
 
 # Table of Contents
 
 * [Preprocessing](#Preprocessing)
   * [Remove Columns](#remove columns)
   * [Fill Missing Values](#fill missing values)
-
-
+* [Feature Effects](#Feature Effects)
 
 
 
@@ -122,29 +123,33 @@ Since those features contains many missing values, so it may not be wise to use 
 
 Those features are divided into two kinds, basement and garage. 
 
-First I anlyzed features about basement.
-
-```
-<img src="feature_relation/ExterQual_BsmtQual.png" width="100">
-```
-
-
+First I anlyzed features about basement. Those dots' sizes increase as values increase in following plots.
 
 ![ExterQual vs BsmtQual](feature_relation/ExterQual_BsmtQual.png)
 
-![ExterCond vs BsmtQual](/Users/Leslie/GitHub/HousePrice/feature_relation/ExterCond_BsmtQual.png)
+![ExterCond vs BsmtQual](feature_relation/ExterCond_BsmtQual.png)
+
+![OverallQual vs BsmtQual](feature_relation/OverallQual_BsmtQual.png)
+
+![OverallCond vs BsmtQual](feature_relation/OverallCond_BsmtQual.png)
+
+From those 4 plots above, it's obvious that `BsmtQual` has relations with `ExterQual` and `OverallQual`. Therefore, a simple linear regression will be built to fill those missing values in `BsmtQual`.
 
 
 
+![OverallCond vs BsmtCond](feature_relation/OverallCond_BsmtCond.png)
+
+![ExterCond vs BsmtCond](feature_relation/ExterCond_BsmtCond.png)
+
+![ExterQual vs BsmtCond](feature_relation/ExterQual_BsmtCond.png)
+
+![OverallQual vs BsmtCond](feature_relation/OverallQual_BsmtCond.png)
+
+However, I can find that `BsmtCond` has no significant relation with `OverallCond`, `ExterCond`, `ExterQual` or `OverallQual`.  Thus, `"TA"`, corresponding to `3`, is a reasonable value fill missing values in `BsmtCond`.
 
 
 
-
-
-
-
-
-
+## Feature Effects
 
 The feature importance is calculated by **Pearson Correlation Coefficents** and **Mutual Information**.
 
