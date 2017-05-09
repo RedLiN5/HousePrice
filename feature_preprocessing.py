@@ -41,9 +41,45 @@ class FeaturePreprocess(ReadData):
         self.numeric_features = df.dtypes[df.dtypes != "object"].index
         self.dataframe = df
 
-    def _fill_NA(self):
+    def _basic_encoding(self):
         self._remove_NA_col()
         df = self.dataframe.copy()
+        qual_cond_dict = {'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5}
+        df['BldgType'] = df['BldgType'].map({'1Fam': 5, '2FmCon': 4, 'Duplx': 3,
+                                             'TwnhsE': 2, 'TwnhsI': 1})
+        df['HouseStyle'] = df['HouseStyle'].map({'SLvl': 6, 'SFoyer': 5,
+                                                 '2.5Fin': 4, '2.5Unf': 3.5,
+                                                 '2Story': 3, '1.5Fin': 2,
+                                                 '1.5Unf': 1.5, '1Story': 1})
+        df['ExterQual'] = df['ExterQual'].map(qual_cond_dict)
+        df['ExterCond'] = df['ExterCond'].map(qual_cond_dict)
+        df['BsmtQual'] = df['BsmtQual'].map(qual_cond_dict)
+        df['BsmtCond'] = df['BsmtCond'].map(qual_cond_dict)
+
+        df['BsmtExposure'] = df['BsmtExposure'].map({'NA': 0, "No": 1, "Mn": 2, "Av": 3, "Gd": 4})
+        df['BsmtFinType1'] = df['BsmtFinType1'].map({'GLQ': 6, 'ALQ': 5, 'BLQ': 4,
+                                                     'Rec': 3, 'LwQ': 2, 'Unf': 1,
+                                                     'NA': 0})
+        df['BsmtFinType2'] = df['BsmtFinType2'].map({'GLQ': 6, 'ALQ': 5, 'BLQ': 4,
+                                                     'Rec': 3, 'LwQ': 2, 'Unf': 1,
+                                                     'NA': 0})
+        df['LotShape'] = df['LotShape'].map({'Reg': 4, 'IR1': 3,
+                                             'IR2': 2, 'IR3': 1})
+        df['GarageType'] = df['GarageType'].map({'2Types': 6, 'Attchd': 5,
+                                                 'Basment': 4, 'BuiltIn': 3,
+                                                 'CarPort': 2, 'Detchd': 1,
+                                                 'NA': 0})
+        df['PavedDrive'] = df['PavedDrive'].map({'Y': 1, 'N': 0})
+        df['GarageFinish'] = df['GarageFinish'].map({'Fin': 3, 'RFn': 2,
+                                                     'Unf': 1, 'NA': 0})
+        df['GarageQual'] = df['GarageQual'].map(qual_cond_dict)
+        df['GarageCond'] = df['GarageCond'].map(qual_cond_dict)
+        self.dataframe = df
+        return df
+
+
+    def _fill_NA(self):
+        df = self._basic_encoding()
         df['MSZoning'].fillna(statistics.mode(df['MSZoning']),
                               inplace=True)
 
@@ -81,39 +117,27 @@ class FeaturePreprocess(ReadData):
 
         print(df.isnull().sum()[df.isnull().sum()>0])
 
-        df['BldgType'] = df['BldgType'].map({'1Fam':5, '2FmCon':4, 'Duplx':3,
-                                             'TwnhsE': 2, 'TwnhsI':1})
-        df['HouseStyle'] = df['HouseStyle'].map({'SLvl':6, 'SFoyer':5,
-                                                 '2.5Fin':4, '2.5Unf': 3.5,
-                                                 '2Story':3, '1.5Fin': 2,
-                                                 '1.5Unf': 1.5, '1Story': 1})
-        df['ExterQual'] = df['ExterQual'].map({'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5})
-        df['ExterCond'] = df['ExterCond'].map({'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5})
-        df['BsmtQual'] = df['BsmtQual'].map({'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5})
-        df['BsmtCond'] = df['BsmtCond'].map({'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5})
 
-        df['BsmtExposure'] = df['BsmtExposure'].map({'NA': 0, "No": 1, "Mn": 2, "Av": 3, "Gd": 4})
-        df['BsmtFinType1'] = df['BsmtFinType1'].map({'GLQ': 6, 'ALQ': 5, 'BLQ': 4,
-                                                     'Rec': 3, 'LwQ': 2, 'Unf': 1,
-                                                     'NA': 0})
-        df['BsmtFinType2'] = df['BsmtFinType2'].map({'GLQ': 6, 'ALQ': 5, 'BLQ': 4,
-                                                     'Rec': 3, 'LwQ': 2, 'Unf': 1,
-                                                     'NA': 0})
+        df['GarageCars'].fillna(statistics.mode(df['GarageCars']),
+                                inplace=True)
+        df['GarageArea'].fillna(statistics.mode(df['GarageArea']),
+                                inplace=True)
 
-        # BsmtCond_NA_index = df['BsmtFinType1'].isnull()
-        #
-        # BsmtCond_df = df.ix[~BsmtCond_NA_index, ['ExterQual','BsmtFinType1']].groupby(['ExterQual', 'BsmtFinType1']).size().reset_index(name="Time")
+
+        # NA_index = df['GarageCond'].isnull()
+        # BsmtCond_df = df.ix[~NA_index, ['ExterCond','GarageCond']].groupby(['ExterCond', 'GarageCond']).size().reset_index(name="Time")
+        # print(BsmtCond_df)
         # for i in range(BsmtCond_df.shape[0]):
-        #     plt.scatter(BsmtCond_df.ix[i, 'ExterQual'],
-        #                 BsmtCond_df.ix[i, 'BsmtFinType1'],
+        #     plt.scatter(BsmtCond_df.ix[i, 'ExterCond'],
+        #                 BsmtCond_df.ix[i, 'GarageCond'],
         #                 s=BsmtCond_df.ix[i, 'Time'],
         #                 c='b')
-        # NA_index = df['BsmtFinType1'].isnull()
-        # plt.scatter(df.ix[~NA_index, 'BsmtUnfSF'],
-        #             df.ix[~NA_index, 'BsmtFinType1'])
-        # plt.xlabel('BsmtUnfSF')
-        # plt.ylabel('BsmtFinType1')
-        # plt.savefig('feature_relation/BsmtUnfSF_BsmtFinType1.png')
+        # NA_index = df['GarageYrBlt'].isnull()
+        # plt.scatter(df.ix[~NA_index, 'YearRemodAdd'],
+        #             df.ix[~NA_index, 'GarageYrBlt'])
+        # plt.xlabel('ExterCond')
+        # plt.ylabel('GarageCond')
+        # plt.savefig('feature_relation/ExterCond_GarageCond.png')
         # print(df.ix[:40, ['YearBuilt', 'YearRemodAdd', 'OverallQual', 'OverallCond', 'ExterQual', 'ExterCond', 'BsmtQual', 'BsmtCond', 'BsmtExposure']])
 
 
