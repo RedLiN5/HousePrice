@@ -4,15 +4,17 @@
 
 # Table of Contents
 
-* [Preprocessing](#preprocessing)
-  * [Remove Columns](#Example)
-  * [Fill Missing Values](#fillnas)
+* [Preprocessing](#Preprocessing)
+  * [Remove Columns](#remove columns)
+  * [Fill Missing Values](#fill missing values)
+
+
 
 
 
 ## Preprocessing
 
-### Remove Columns 
+### Remove Columns
 
 ```python
 >>>missing_count = dataframe.isnull().sum()
@@ -115,6 +117,24 @@ GarageQual      159
 GarageCond      159
 dtype: int64
 ```
+
+Since those features contains many missing values, so it may not be wise to use **mean**, **median** or **mode** to interpolate those empty items. Hence, I tried to build a regression and to find out potential patterns among those features.
+
+Those features are divided into two kinds, basement and garage. 
+
+First I anlyzed features about basement.
+
+```
+<img src="feature_relation/ExterQual_BsmtQual.png" width="100">
+```
+
+
+
+![ExterQual vs BsmtQual](feature_relation/ExterQual_BsmtQual.png)
+
+![ExterCond vs BsmtQual](/Users/Leslie/GitHub/HousePrice/feature_relation/ExterCond_BsmtQual.png)
+
+
 
 
 
