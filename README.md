@@ -7,9 +7,9 @@
 # Table of Contents
 
 * [Preprocessing](#Preprocessing)
-  * [Remove Columns](#Remove Columns)
-  * [Fill Missing Values](#Fill Missing Values)
-* [Feature Effects](#Feature Effects)
+  * [RemoveColumns](#Remove-Columns)
+  * [FillMissingValues](#Fill-Missing-Values)
+* [Feature Effects](#Feature-Effects)
 
 
 
@@ -149,6 +149,12 @@ However, I can find that `BsmtCond` has no significant relation with `OverallCon
 
 
 
+![BsmtFinSF1 vs BsmtFinType1](feature_relation/BsmtFinSF1_BsmtFinType1.png)
+
+There is a weak pattern between `BsmtFinType1` and `BsmtFinSF1`. So I built a linear regression to fill missing values in `BsmtFinType1.
+
+
+
 I assume that `GarageQual` may have some potential relations with `ExterQual`, `ExterCond` or `OverallQual`.
 
 ![ExterQual vs GarageQual](feature_relation/ExterQual_GarageQual.png)
@@ -162,6 +168,8 @@ From those plots above, most of values from `GarageQual` are located at `3` whic
 Same condition happends to `GarageCond`, and those missing values in `GarageCond` are filled with `3` corresponding to `Typical/Average`.
 
 
+
+Moreover, I could not find other very strong relations between variables with NAs and which without NAs. So, as a expediency, I used **mode** to fill NAs in each variable.
 
 
 
