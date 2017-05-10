@@ -14,8 +14,8 @@ def RelationPlot(data = None,
     :param x: String, column name
     :param y: String, column name
     :param is_discrete: boolean
-        If True, at least one of x and y is a discrete variable.
-        If False, both x and y are continuous variables.
+        If True, both of x and y are discrete variables.
+        If False, at least one of x and y is a continuous variable.
     :param output_dir: String, plot output directory
         Default: In current working directory.
     """
@@ -24,7 +24,6 @@ def RelationPlot(data = None,
     NA_index = data[y].isnull()
     if is_discrete:
         df = data.ix[~NA_index, [x, y]].groupby([x, y]).size().reset_index(name="Time")
-        print(df)
         for i in range(df.shape[0]):
             plt.scatter(df.ix[i, x],
                         df.ix[i, y],
