@@ -14,7 +14,7 @@ class ReadData(object):
                                  sep=',',
                                  header=0,
                                  index_col=0)
-        y = trainData['SalePrice']
+        self.y_train = trainData['SalePrice']
         trainData.drop('SalePrice',
                        axis=1,
                        inplace=True)
