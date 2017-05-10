@@ -5,6 +5,8 @@ import statistics
 from datasets import ReadData
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
+from relation_plot import RelationPlot
+from collections import Counter
 
 
 class FeaturePreprocess(ReadData):
@@ -40,13 +42,13 @@ class FeaturePreprocess(ReadData):
         df = df.drop(colname_remove, axis = 1)
         self.numeric_features = df.dtypes[df.dtypes != "object"].index
         self.dataframe = df
+        return df
 
     def _basic_encoding(self):
-        self._remove_NA_col()
-        df = self.dataframe.copy()
+        df = self._remove_NA_col()
         qual_cond_dict = {'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5}
-        df['BldgType'] = df['BldgType'].map({'1Fam': 5, '2FmCon': 4, 'Duplx': 3,
-                                             'TwnhsE': 2, 'TwnhsI': 1})
+        df['BldgType'] = df['BldgType'].map({'1Fam': 5, '2fmCon': 4, 'Duplex': 3,
+                                             'TwnhsE': 2, 'Twnhs': 1})
         df['HouseStyle'] = df['HouseStyle'].map({'SLvl': 6, 'SFoyer': 5,
                                                  '2.5Fin': 4, '2.5Unf': 3.5,
                                                  '2Story': 3, '1.5Fin': 2,
@@ -69,11 +71,13 @@ class FeaturePreprocess(ReadData):
                                                  'Basment': 4, 'BuiltIn': 3,
                                                  'CarPort': 2, 'Detchd': 1,
                                                  'NA': 0})
-        df['PavedDrive'] = df['PavedDrive'].map({'Y': 1, 'N': 0})
+        df['PavedDrive'] = df['PavedDrive'].map({'Y': 1, 'P': 0.5, 'N': 0})
         df['GarageFinish'] = df['GarageFinish'].map({'Fin': 3, 'RFn': 2,
                                                      'Unf': 1, 'NA': 0})
         df['GarageQual'] = df['GarageQual'].map(qual_cond_dict)
         df['GarageCond'] = df['GarageCond'].map(qual_cond_dict)
+        df['Foundation'] = df['Foundation'].map({'PConc': 4, 'CBlock': 3, 'BrkTil': 2,
+                                                 'Slab': 1, 'Stone': 1, 'Wood': 1})
         self.dataframe = df
         return df
 
@@ -89,6 +93,7 @@ class FeaturePreprocess(ReadData):
                df['LotFrontage'][~LotFront_NA_index])
         LotFront_pred = LR.predict(df['LotArea'][LotFront_NA_index].values.reshape(-1,1))
         df.ix[LotFront_NA_index, 'LotFrontage'] = list(map(int, np.round(LotFront_pred)))
+        del LR
 
         df['Utilities'].fillna(statistics.mode(df['Utilities']),
                                inplace=True)
@@ -115,31 +120,56 @@ class FeaturePreprocess(ReadData):
         df['SaleType'].fillna(statistics.mode(df['SaleType']),
                               inplace=True)
 
-        print(df.isnull().sum()[df.isnull().sum()>0])
+        BsmtQual_NA_index = df['BsmtQual'].isnull()
+        LR = LinearRegression()
+        LR.fit(df.ix[~BsmtQual_NA_index, ['ExterQual', 'OverallQual']],
+               df.ix[~BsmtQual_NA_index, 'BsmtQual'])
+        BsmtQual_pred = LR.predict(df.ix[BsmtQual_NA_index,
+                                         ['ExterQual', 'OverallQual']])
+        df.ix[BsmtQual_NA_index, 'BsmtQual'] = list(map(int, np.round(BsmtQual_pred)))
+        del LR
+
+        df['BsmtCond'].fillna(statistics.mode(df['BsmtCond']),
+                              inplace=True)
+
+        BsmtFinType1_NA_index = df['BsmtFinType1'].isnull()
+        LR = LinearRegression()
+        LR.fit(df.ix[~BsmtFinType1_NA_index, 'BsmtFinSF1'].values.reshape(-1,1),
+               df.ix[~BsmtFinType1_NA_index, 'BsmtFinType1'])
+        BsmtFinType1_pred = LR.predict(df.ix[BsmtFinType1_NA_index,
+                                             'BsmtFinSF1'].values.reshape(-1,1))
+        df.ix[BsmtFinType1_NA_index, 'BsmtFinType1'] = list(map(int, np.round(BsmtFinType1_pred)))
+        del LR
+
+        df['BsmtFinType2'].fillna(statistics.mode(df['BsmtFinType2']),
+                                  inplace=True)
+        df['BsmtExposure'].fillna(statistics.mode(df['BsmtExposure']),
+                                  inplace=True)
 
 
         df['GarageCars'].fillna(statistics.mode(df['GarageCars']),
                                 inplace=True)
         df['GarageArea'].fillna(statistics.mode(df['GarageArea']),
                                 inplace=True)
+        df['GarageType'].fillna(statistics.mode(df['GarageType']),
+                                inplace=True)
+        GarageYrBlt_NA_index = df['GarageYrBlt'].isnull()
+        df.ix[GarageYrBlt_NA_index, 'GarageYrBlt'] = df.ix[GarageYrBlt_NA_index, 'YearBuilt']
+        df['GarageQual'].fillna(statistics.mode(df['GarageQual']),
+                                inplace=True)
+        df['GarageCond'].fillna(statistics.mode(df['GarageCond']),
+                                inplace=True)
+        df['GarageFinish'].fillna(statistics.mode(df['GarageFinish']),
+                                  inplace=True)
 
-
-        # NA_index = df['GarageCond'].isnull()
-        # BsmtCond_df = df.ix[~NA_index, ['ExterCond','GarageCond']].groupby(['ExterCond', 'GarageCond']).size().reset_index(name="Time")
-        # print(BsmtCond_df)
-        # for i in range(BsmtCond_df.shape[0]):
-        #     plt.scatter(BsmtCond_df.ix[i, 'ExterCond'],
-        #                 BsmtCond_df.ix[i, 'GarageCond'],
-        #                 s=BsmtCond_df.ix[i, 'Time'],
-        #                 c='b')
-        # NA_index = df['GarageYrBlt'].isnull()
-        # plt.scatter(df.ix[~NA_index, 'YearRemodAdd'],
-        #             df.ix[~NA_index, 'GarageYrBlt'])
-        # plt.xlabel('ExterCond')
-        # plt.ylabel('GarageCond')
-        # plt.savefig('feature_relation/ExterCond_GarageCond.png')
-        # print(df.ix[:40, ['YearBuilt', 'YearRemodAdd', 'OverallQual', 'OverallCond', 'ExterQual', 'ExterCond', 'BsmtQual', 'BsmtCond', 'BsmtExposure']])
-
+        # print(df.isnull().sum()[df.isnull().sum() > 0])
+        #
+        # RelationPlot(data=df,
+        #              x='YearRemodAdd', y='GarageFinish',
+        #              is_discrete=True,
+        #              output_dir='feature_relation')
+        self.dataframe = df
+        return df
 
 
     def _remove_outliers(self):
@@ -251,13 +281,7 @@ class FeaturePreprocess(ReadData):
                                                  '2.5Fin':4, '2.5Unf': 3.5,
                                                  '2Story':3, '1.5Fin': 2,
                                                  '1.5Unf': 1.5, '1Story': 1})
-        df['ExterQual'] = df['ExterQual'].map(qual_dict)
-        df['ExterCond'] = df['ExterCond'].map(qual_dict)
-        df['Foundation'] = df['Foundation'].map({'PConc':4, 'CBlock':3, 'BrkTil':2,
-                                                 'Slab':1, 'Stone':1, 'Wood':1})
-        df['BsmtQual'] = df['BsmtQual'].map(qual_dict)
-        df['BsmtCond'] = df['BsmtCond'].map(qual_dict)
-        df['BsmtExposure'] = df['BsmtExposure'].map(qual_dict)
+
         df['BsmtFinType1'] = df['BsmtFinType1'].map({'GLQ':6, 'ALQ':5, 'BLQ':4,
                                                      'Rec':3, 'LwQ':2, 'Unf':1,
                                                      'NA':0})
