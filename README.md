@@ -6,10 +6,10 @@
 
 # Table of Contents
 
-* [Preprocessing](#Preprocessing)
-  * [RemoveColumns](#Remove-Columns)
-  * [FillMissingValues](#Fill-Missing-Values)
-* [Feature Effects](#Feature-Effects)
+* [Preprocessing](#preprocessing)
+  * [RemoveColumns](#remove-columns)
+  * [FillMissingValues](#fill-missing-values)
+* [Feature Effects](#feature-effects)
 
 
 
