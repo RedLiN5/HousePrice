@@ -164,12 +164,6 @@ class FeaturePreprocess(ReadData):
         df['GarageFinish'].fillna(statistics.mode(df['GarageFinish']),
                                   inplace=True)
 
-        # print(df.isnull().sum()[df.isnull().sum() > 0])
-        #
-        # RelationPlot(data=df,
-        #              x='YearRemodAdd', y='GarageFinish',
-        #              is_discrete=True,
-        #              output_dir='feature_relation')
         self.dataframe = df
         df = _encoding(df, ['MSZoning', 'Street', 'LandContour', 'Utilities', 'LotConfig', 'LandSlope',
                             'Neighborhood', 'Condition1', 'Condition2', 'RoofStyle', 'RoofMatl',
@@ -203,105 +197,11 @@ class FeaturePreprocess(ReadData):
         self.dataframe = df
 
 
-    # def _convert_(self):
-    #     """
-    #     Convert string to int in each column.
-    #     :return:
-    #     """
-    #     self._domain_knwl_encod()
-    #     dataframe = self.dataframe.copy()
-    #     colnames = dataframe.columns
-    #
-    #     for name in colnames:
-    #         column = dataframe[name]
-    #         dataframe[name] = _convert_column(column=column)
-    #
-    #     self.dataframe = dataframe
-
-
-    def _domain_knwl_encod(self):
+    def _domain_knwl_encoding(self):
         df = self._fill_NA()
-        df["RegularLotShape"] = (df['LotShape'] == 4) * 1
-        df["IsLandLevel"] = (df['LandContour'] == "Lvl") * 1
-        df['AllUtilities'] = (df['Utilities'] == 'AllPub') * 1
-        df['GentleLandSlope'] = (df['LandSlope'] == 3) * 1
-        df["IsElectricalSBrkr"] = (df['Electrical'] == "SBrkr") * 1
-        df["Has2ndFloor"] = (df['2ndFlrSF'] == 0) * 1
-        df["IsLowQual"] = (df['LowQualFinSF'] == 0) * 1
-        df["IsGarageDetached"] = (df['GarageType'] == 1) * 1
-        df["VeryNewHouse"] = (df['YearBuilt'] == df["YrSold"]) * 1
-        df['BuiltAge'] = 2011 - df['YearBuilt']
-        df['RemodelAge'] = 2011 - df['YearRemodAdd']
-        # df.drop(['YearBuilt', 'YearRemodAdd', 'LotShape', 'LandContour',
-        #                 'Utilities', 'LandSlope', 'Electrical', 'GarageType'],
-        #                axis = 1,inplace = True)
-        df["HighSeason"] = df["MoSold"].replace(
-            {1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0})
-        df["MSSubClass"] = df["MSSubClass"].replace(
-            {20: 1, 30: 0, 40: 0, 45: 0, 50: 0, 60: 1, 70: 0, 75: 0, 80: 0, 85: 0,
-             90: 0, 120: 1, 150: 0, 160: 0, 180: 0, 190: 0})
-        df.loc[df.Neighborhood == 'NridgHt', "Neighborhood_Good"] = 1
-        df.loc[df.Neighborhood == 'Crawfor', "Neighborhood_Good"] = 1
-        df.loc[df.Neighborhood == 'StoneBr', "Neighborhood_Good"] = 1
-        df.loc[df.Neighborhood == 'Somerst', "Neighborhood_Good"] = 1
-        df.loc[df.Neighborhood == 'NoRidge', "Neighborhood_Good"] = 1
-        df["Neighborhood_Good"].fillna(0, inplace=True)
-        # df.drop(['MoSold'], axis=1, inplace=True)
-
-        qual_dict = {'NA': 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5}
-        df['LotShape'] = df['LotShape'].map({'Reg': 4, 'IR1': 3,
-                                             'IR2': 2, 'IR3': 1})
-        df['LandSlope'] = df['LandSlope'].map({'Gtl': 3, 'Mod':2, 'Sev': 1})
-        df['BldgType'] = df['BldgType'].map({'1Fam':5, '2FmCon':4, 'Duplx':3,
-                                             'TwnhsE': 2, 'TwnhsI':1})
-        df['HouseStyle'] = df['HouseStyle'].map({'SLvl':6, 'SFoyer':5,
-                                                 '2.5Fin':4, '2.5Unf': 3.5,
-                                                 '2Story':3, '1.5Fin': 2,
-                                                 '1.5Unf': 1.5, '1Story': 1})
-
-        df['BsmtFinType1'] = df['BsmtFinType1'].map({'GLQ':6, 'ALQ':5, 'BLQ':4,
-                                                     'Rec':3, 'LwQ':2, 'Unf':1,
-                                                     'NA':0})
-        df['BsmtFinType2'] = df['BsmtFinType2'].map({'GLQ':6, 'ALQ':5, 'BLQ':4,
-                                                     'Rec':3, 'LwQ':2, 'Unf':1,
-                                                     'NA':0})
-        df['HeatingQC'] = df['HeatingQC'].map(qual_dict)
-        df['CentralAir'] = df['CentralAir'].map({'Y':1, 'N':0})
-        df['KitchenQual'] = df['KitchenQual'].map(qual_dict)
-        df['GarageType'] = df['GarageType'].map({'2Types':6, 'Attchd':5,
-                                                 'Basment':4, 'BuiltIn':3,
-                                                 'CarPort':2, 'Detchd':1,
-                                                 'NA':0})
-        df['GarageFinish'] = df['GarageFinish'].map({'Fin':3, 'RFn':2,
-                                                     'Unf':1, 'NA':0})
-        df['GarageQual'] = df['GarageQual'].map(qual_dict)
-        df['GarageCond'] = df['GarageCond'].map(qual_dict)
-        df["Functional"] = df["Functional"].map({None: 0, "Sal": 1, "Sev": 2,
-                                                 "Maj2": 3, "Maj1": 4, "Mod": 5,
-                                                 "Min2": 6, "Min1": 7, "Typ": 8})
-        df['SaleCondition_PriceDown'] = df['SaleCondition'].map({'Abnorml': 1, 'Alloca': 1,
-                                                                 'AdjLand': 1, 'Family': 1,
-                                                                 'Normal': 0, 'Partial': 0})
-        df["BoughtOffPlan"] = df['SaleCondition'].map({"Abnorml": 0, "Alloca": 0, "AdjLand": 0,
-                                                       "Family": 0, "Normal": 0, "Partial": 1})
-
-        df["SimplOverallQual"] = df['OverallQual'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2,
-                                                        6: 2, 7: 3, 8: 3, 9: 3, 10: 3})
-        df["SimplOverallCond"] = df['OverallCond'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2,
-                                                        6: 2, 7: 3, 8: 3, 9: 3, 10: 3})
-        df["SimplGarageCond"] = df['GarageCond'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2})
-        df["SimplGarageQual"] = df['GarageQual'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2})
-        df["SimplFunctional"] = df['Functional'].map({1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 3, 7: 3, 8: 4})
-        df["SimplKitchenQual"] = df['KitchenQual'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2})
-        df["SimplHeatingQC"] = df['HeatingQC'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2})
-        df["SimplBsmtFinType1"] = df['BsmtFinType1'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2, 6: 2})
-        df["SimplBsmtFinType2"] = df['BsmtFinType2'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2, 6: 2})
-        df["SimplBsmtCond"] = df['BsmtCond'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2})
-        df["SimplBsmtQual"] = df['BsmtQual'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2})
-        df["SimplExterCond"] = df['ExterCond'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2})
-        df["SimplExterQual"] = df['ExterQual'].map({1: 1, 2: 1, 3: 1, 4: 2, 5: 2})
 
         self.dataframe = df
+        return df
 
     def run(self):
         pass
@@ -330,4 +230,4 @@ def _encoding(dataframe, column_name):
 
 if __name__ == '__main__':
     FeaturePreprocess(trainFile='train.csv',
-                      testFile='test.csv')._fill_NA()
+                      testFile='test.csv')._domain_knwl_encoding()
