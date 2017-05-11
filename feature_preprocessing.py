@@ -3,6 +3,7 @@
 import numpy as np
 import statistics
 from datasets import ReadData
+from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 from relation_plot import RelationPlot
@@ -78,6 +79,7 @@ class FeaturePreprocess(ReadData):
         df['GarageCond'] = df['GarageCond'].map(qual_cond_dict)
         df['Foundation'] = df['Foundation'].map({'PConc': 4, 'CBlock': 3, 'BrkTil': 2,
                                                  'Slab': 1, 'Stone': 1, 'Wood': 1})
+
         self.dataframe = df
         return df
 
@@ -169,6 +171,10 @@ class FeaturePreprocess(ReadData):
         #              is_discrete=True,
         #              output_dir='feature_relation')
         self.dataframe = df
+        df = _encoding(df, ['MSZoning', 'Street', 'LandContour', 'Utilities', 'LotConfig', 'LandSlope',
+                            'Neighborhood', 'Condition1', 'Condition2', 'RoofStyle', 'RoofMatl',
+                            'Exterior1st', 'Exterior2nd', 'MasVnrType', 'Heating', 'HeatingQC', 'CentralAir',
+                            'Electrical', 'KitchenQual', 'Functional', 'SaleType', 'SaleCondition'])
         return df
 
 
@@ -197,53 +203,24 @@ class FeaturePreprocess(ReadData):
         self.dataframe = df
 
 
-    def _convert_(self):
-        """
-        Convert string to int in each column.
-        :return:
-        """
-        self._domain_knwl_encod()
-        dataframe = self.dataframe.copy()
-        colnames = dataframe.columns
+    # def _convert_(self):
+    #     """
+    #     Convert string to int in each column.
+    #     :return:
+    #     """
+    #     self._domain_knwl_encod()
+    #     dataframe = self.dataframe.copy()
+    #     colnames = dataframe.columns
+    #
+    #     for name in colnames:
+    #         column = dataframe[name]
+    #         dataframe[name] = _convert_column(column=column)
+    #
+    #     self.dataframe = dataframe
 
-        for name in colnames:
-            column = dataframe[name]
-            dataframe[name] = _convert_column(column=column)
-
-        self.dataframe = dataframe
-
-    def _interpolate_(self):
-        """
-        Interpolate missing values with mode.
-        :return:
-        """
-        self._convert_()
-        dataframe = self.dataframe.copy()
-        missing_count = dataframe.isnull().sum()
-        col_missing = missing_count[missing_count > 0]
-        colnames_missing = col_missing.index.tolist()
-
-        lot_frontage_by_neighborhood = dataframe["LotFrontage"].\
-            groupby(dataframe["Neighborhood"])
-
-        for key, group in lot_frontage_by_neighborhood:
-            idx = (dataframe["Neighborhood"] == key) & \
-                  (dataframe["LotFrontage"].isnull())
-            dataframe.loc[idx, "LotFrontage"] = group.median()
-
-        for colname in colnames_missing:
-            column = dataframe[colname]
-            index_missing = column.isnull()
-            mode = statistics.mode(column[~index_missing])
-            column = column.fillna(mode)
-            dataframe[colname] = column
-
-        self.dataframe = dataframe
 
     def _domain_knwl_encod(self):
-        if not self.ispred:
-            self._remove_outliers()
-        df = self.dataframe
+        df = self._fill_NA()
         df["RegularLotShape"] = (df['LotShape'] == 4) * 1
         df["IsLandLevel"] = (df['LandContour'] == "Lvl") * 1
         df['AllUtilities'] = (df['Utilities'] == 'AllPub') * 1
@@ -326,32 +303,29 @@ class FeaturePreprocess(ReadData):
 
         self.dataframe = df
 
-    def run_preprocessor(self):
-        self._interpolate_()
-        return self.dataframe
+    def run(self):
+        pass
 
 
 
 
-def _convert_column(column):
+def _encoding(dataframe, column_name):
     """
     Convert string to int in one column.
-    :param column: pandas.Series
-                   One column in dataframe.
-    :return: Converted column.
+    :param dataframe: pandas.DataFrame
+           column_name: string or list
+                Column name(s) in dataframe.
+    :return: Encoded dataframe.
     """
-    column_values = column[~column.isnull()]
-    is_string = column_values.apply(lambda x: isinstance(x, str)).any()
+    le = LabelEncoder()
+    le_transform = le.fit_transform
+    try:
+        dataframe[column_name] = dataframe[column_name].apply(le_transform)
+    except Exception as e:
+        print('Encoding failure for following reasons:', e)
+    return dataframe
 
-    if is_string:
-        unique_values = list(set(column_values))
-        int_length = len(unique_values)
 
-        for i in range(int_length):
-            value = unique_values[i]
-            column.loc[column == value] = i+1
-
-    return column
 
 
 if __name__ == '__main__':
