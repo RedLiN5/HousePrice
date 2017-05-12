@@ -22,17 +22,17 @@ testIndex = preprocessing.testIndex
 y_train = preprocessing.y_train
 y_train_log1p = np.log1p(y_train)
 
-df_all = preprocessing._domain_knwl_encoding()
+df_all = preprocessing._fill_NA()
 X_train = df_all.loc[trainIndex]
 X_test = df_all.loc[testIndex]
 
 
+# Baseline: Accuracy: 0.129356 (+/- 0.011892)
 reg = xgb.XGBRegressor()
 
 scores = cross_val_score(reg, X_train, y_train_log1p, cv=5, scoring=rmse_scorer)
 
-print(scores)
-print("Accuracy: {0:0.6f} (+/- {1:0.6f})".format(np.mean(scores),
+print("Accuracy: {0:0.6f} (+/- {1:0.6f}) \n".format(np.mean(scores),
                                            np.std(scores)))
 
 # y_test_log1p = reg.predict(X_test)
