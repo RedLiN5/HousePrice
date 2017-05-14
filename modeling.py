@@ -17,14 +17,17 @@ rmse_scorer = make_scorer(rmse_calculator)
 
 preprocessing = FeaturePreprocess(trainFile='train.csv',
                                   testFile='test.csv')
-trainIndex = preprocessing.trainIndex
+split_position = preprocessing.split_position
 testIndex = preprocessing.testIndex
-y_train = preprocessing.y_train
+
+df_all = preprocessing._domain_knwl_encoding()
+X_train = df_all.loc[:split_position]
+X_test = df_all.loc[split_position:]
+
+train_index = X_train.index
+y_train = preprocessing.y_train.loc[train_index]
 y_train_log1p = np.log1p(y_train)
 
-df_all = preprocessing._fill_NA()
-X_train = df_all.loc[trainIndex]
-X_test = df_all.loc[testIndex]
 
 
 # Baseline: Accuracy: 0.129356 (+/- 0.011892)
