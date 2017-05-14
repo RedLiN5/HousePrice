@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pandas as pd
 import statistics
 from datasets import ReadData
 from sklearn.preprocessing import LabelEncoder
@@ -173,7 +174,10 @@ class FeaturePreprocess(ReadData):
 
 
     def _remove_outliers(self):
-        df = self._fill_NA()
+        df_all = self._fill_NA()
+        df = df_all.loc[:self.split_position].copy()
+        df_test = df_all.loc[(self.split_position+1):].copy()
+
         df.drop(df[df["LotArea"] > 100000].index,
                 inplace = True)
         df.drop(df[df["LotFrontage"] > 200].index,
@@ -208,6 +212,8 @@ class FeaturePreprocess(ReadData):
                 inplace=True)
         df.drop(df[df["ScreenPorch"] > 400].index,
                 inplace=True)
+
+        df = pd.concat([df, df_test])
 
         self.dataframe = df
         return df
