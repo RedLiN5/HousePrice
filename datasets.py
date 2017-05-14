@@ -19,7 +19,7 @@ class ReadData(object):
                        axis=1,
                        inplace=True)
         self.dataframe = pd.concat([trainData, testData])
-        self.trainIndex = self.dataframe.index[:1460]
-        self.testIndex = self.dataframe.index[1460:]
+        self.split_position = trainData.shape[0]
+        self.testIndex = testData.index
 
 
