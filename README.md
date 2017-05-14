@@ -7,9 +7,11 @@
 # Table of Contents
 
 * [Preprocessing](#preprocessing)
-  * [RemoveColumns](#remove-columns)
-  * [FillMissingValues](#fill-missing-values)
-* [Feature Effects](#feature-effects)
+  * [Remove Columns](#remove-columns)
+  * [Fill Missing Values](#fill-missing-values)
+  * [Encoding with Domain Knowledge](#encoding-with-domain-knowledge)
+  * [Remove Outliers](#remove-outliers)
+* [Feature Effects](#)
 
 
 
@@ -180,4 +182,57 @@ Original Price Distribution
 Price Distribution after Logarithm
 
 ![Log1p Price Distribution](plots/price_log1p_histogram.png)
+
+
+
+### Remove Outliers
+
+Outliers undoutebly affect the predition accuracy significantly especially in regression. Thus, I drew histogram for every numeric feature and decided a boundary for each feature.
+
+```python
+df.drop(df[df["LotArea"] > 100000].index,
+        inplace = True)
+df.drop(df[df["LotFrontage"] > 200].index,
+        inplace=True)
+df.drop(df[df["BsmtFinSF1"] > 3000].index,
+        inplace=True)
+df.drop(df[df["BsmtFinSF2"] > 1000].index,
+        inplace=True)
+df.drop(df[df["MasVnrArea"] > 1000].index,
+        inplace=True)
+df.drop(df[df["1stFlrSF"] > 3000].index,
+        inplace=True)
+df.drop(df[df["GrLivArea"] > 4500].index,
+        inplace=True)
+df.drop(df[df["LowQualFinSF"] > 600].index,
+        inplace=True)
+df.drop(df[df["TotalBsmtSF"] > 4000].index,
+        inplace=True)
+df.drop(df[df["3SsnPorch"] > 300].index,
+        inplace=True)
+df.drop(df[df["EnclosedPorch"] > 500].index,
+        inplace=True)
+df.drop(df[df["GarageYrBlt"] > 2010].index,
+        inplace=True)
+df.drop(df[df["OpenPorchSF"] > 400].index,
+        inplace=True)
+df.drop(df[df["WoodDeckSF"] > 800].index,
+        inplace=True)
+df.drop(df[df["MiscVal"] > 5000].index,
+        inplace=True)
+df.drop(df[df["PoolArea"] > 200].index,
+        inplace=True)
+df.drop(df[df["ScreenPorch"] > 400].index,
+        inplace=True)
+```
+
+
+
+After removing outliers, my local test accuracy raises up to $0.120237 \pm 0.007230$.
+
+
+
+#### Encoding with Domain Knowledge
+
+
 
