@@ -173,34 +173,48 @@ class FeaturePreprocess(ReadData):
 
 
     def _remove_outliers(self):
-        self._remove_NA_col()
-        df = self.dataframe
-        df.drop(df[df["GrLivArea"] > 4000].index,
+        df = self._fill_NA()
+        df.drop(df[df["LotArea"] > 100000].index,
                 inplace = True)
-        df.drop(df[df['LotFrontage'] > 160].index,
-                inplace = True)
-        df.drop(df[df['LotArea'] > 60000].index,
+        df.drop(df[df["LotFrontage"] > 200].index,
                 inplace=True)
-        df.drop(df[df['MasVnrArea'] > 1250].index,
+        df.drop(df[df["BsmtFinSF1"] > 3000].index,
                 inplace=True)
-        df.drop(df[df['TotalBsmtSF'] > 2800].index,
+        df.drop(df[df["BsmtFinSF2"] > 1000].index,
                 inplace=True)
-        df.drop(df[df['1stFlrSF'] > 2500].index,
+        df.drop(df[df["MasVnrArea"] > 1000].index,
                 inplace=True)
-        df.drop(df[df['GarageArea'] > 1200].index,
+        df.drop(df[df["1stFlrSF"] > 3000].index,
                 inplace=True)
-        df.drop(df[df['WoodDeckSF'] > 600].index,
+        df.drop(df[df["GrLivArea"] > 4500].index,
                 inplace=True)
-        df.drop(df[df['OpenPorchSF'] > 350].index,
+        df.drop(df[df["LowQualFinSF"] > 600].index,
+                inplace=True)
+        df.drop(df[df["TotalBsmtSF"] > 4000].index,
+                inplace=True)
+        df.drop(df[df["3SsnPorch"] > 300].index,
+                inplace=True)
+        df.drop(df[df["EnclosedPorch"] > 500].index,
+                inplace=True)
+        df.drop(df[df["GarageYrBlt"] > 2010].index,
+                inplace=True)
+        df.drop(df[df["OpenPorchSF"] > 400].index,
+                inplace=True)
+        df.drop(df[df["WoodDeckSF"] > 800].index,
+                inplace=True)
+        df.drop(df[df["MiscVal"] > 5000].index,
+                inplace=True)
+        df.drop(df[df["PoolArea"] > 200].index,
+                inplace=True)
+        df.drop(df[df["ScreenPorch"] > 400].index,
                 inplace=True)
 
         self.dataframe = df
+        return df
 
 
     def _domain_knwl_encoding(self):
-        df = self._fill_NA()
-
-        self.dataframe = df
+        df = self._remove_outliers()
         return df
 
     def run(self):
