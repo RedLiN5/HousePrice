@@ -219,8 +219,23 @@ class FeaturePreprocess(ReadData):
         return df
 
 
+    def _normality(self):
+        df = self._fill_NA()
+        df['YearBuilt'] = 2010 - df['YearBuilt']
+        df['YearRemodAdd'] = 2010 - df['YearRemodAdd']
+        df['BsmtFinSF1'] = np.log1p(df['BsmtFinSF1'])
+        df['BsmtFinSF2'] = np.log1p(df['BsmtFinSF2'])
+        df['MasVnrArea'] = np.log1p(df['MasVnrArea'])
+        df['2ndFlrSF'] = np.log1p(df['2ndFlrSF'])
+        df['BsmtUnfSF'] = np.log1p(df['BsmtUnfSF'])
+        df['OpenPorchSF'] = np.log1p(df['OpenPorchSF'])
+        df['WoodDeckSF'] = np.log1p(df['WoodDeckSF'])
+
+        self.dataframe = df
+        return df
+
     def _domain_knwl_encoding(self):
-        df = self._remove_outliers()
+        df = self._normality()
         return df
 
     def run(self):
